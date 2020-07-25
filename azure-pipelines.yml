@@ -10,10 +10,23 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+- script: |
+    mkdir -p ~/.local/bin
+    curl -L https://get.haskellstack.org/stable/linux-x86_64.tar.gz | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+  displayName: Install Stack
 
 - script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+    export PATH=$HOME/.local/bin:$PATH
+    stack --no-terminal --install-ghc test --only-dependencies
+  displayName: Build Dependencies
+
+- script: |
+    export PATH=$HOME/.local/bin/$PATH
+    stack build
+  displayName: Build Site Executable
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Pipeline.Workspace)'
+    artifact: 'site'
+    publishLocation: 'pipeline'
