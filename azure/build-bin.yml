@@ -22,7 +22,7 @@ steps:
 
 - script: |
     export PATH=$HOME/.local/bin/$PATH
-    stack install -local-bin-path .
+    stack install --local-bin-path .
   displayName: Build Site Executable
 
 - task: PublishPipelineArtifact@1
