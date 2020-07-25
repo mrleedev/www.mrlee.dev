@@ -22,11 +22,11 @@ steps:
 
 - script: |
     export PATH=$HOME/.local/bin/$PATH
-    stack build
+    stack install -local-bin-path .
   displayName: Build Site Executable
 
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: '$(Pipeline.Workspace)'
+    targetPath: '$(Pipeline.Workspace)/site'
     artifact: 'site'
     publishLocation: 'pipeline'
