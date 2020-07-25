@@ -1,8 +1,3 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
   branches:
     include:
@@ -30,8 +25,8 @@ steps:
     stack build
   displayName: Build Site Executable
 
-- task: PublishPipelineArtifact@1
+- task: PublishBuildArtifacts@1
   inputs:
-    targetPath: '$(Pipeline.Workspace)'
-    artifact: 'site'
-    publishLocation: 'pipeline'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'site'
+    publishLocation: 'Container'
