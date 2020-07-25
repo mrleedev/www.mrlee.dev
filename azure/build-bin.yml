@@ -25,8 +25,8 @@ steps:
     stack build
   displayName: Build Site Executable
 
-- task: PublishBuildArtifacts@1
+- task: PublishPipelineArtifact@1
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'site'
-    publishLocation: 'Container'
+    targetPath: '$(Pipeline.Workspace)'
+    artifact: 'site'
+    publishLocation: 'pipeline'
