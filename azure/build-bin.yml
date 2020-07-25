@@ -20,8 +20,8 @@ steps:
     key: 'stack | $(Build.SourceBranchName) | stack.yaml.lock'
     path: '.stack-work'
     restoreKeys: |
-      stack | stack.yml
-      stack.yml
+      stack | stack.yaml
+      stack.yaml
 
 - script: |
     export PATH=$HOME/.local/bin:$PATH
