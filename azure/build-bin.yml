@@ -17,10 +17,9 @@ steps:
 
 - task: Cache@2
   inputs:
-    key: 'stack | $(Build.SourceBranchName) | stack.yaml.lock'
+    key: 'stack.yaml.lock'
     path: '.stack-work'
     restoreKeys: |
-      stack | stack.yaml
       stack.yaml
 
 - script: |
