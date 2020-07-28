@@ -49,4 +49,5 @@ steps:
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: '_site'
+    artifact: 'prod'
     publishLocation: 'pipeline'
