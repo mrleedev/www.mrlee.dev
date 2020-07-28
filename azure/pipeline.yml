@@ -39,7 +39,7 @@ jobs:
     displayName: Build Site Executable
 
 - job: deploy_draft
-  condition: eq(variables['build.sourceBranchName'], 'master')
+  condition: ne(variables['build.sourceBranchName'], 'master')
   steps:
   - script: |
       export PATH=$HOME/.local/bin:$PATH
