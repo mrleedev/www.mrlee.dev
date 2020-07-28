@@ -1,4 +1,5 @@
-trigger:
+pr:
+  autoCancel: true
   branches:
     include:
     - master
