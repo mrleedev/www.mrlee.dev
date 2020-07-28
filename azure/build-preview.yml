@@ -43,11 +43,12 @@ steps:
 
 - script: |
     export PATH=$HOME/.local/bin:$PATH
+    export HAKYLL_ENV=development
     stack --no-terminal --stack-root $(System.DefaultWorkingDirectory)/.stack exec site build
   displayName: Build Static Site
 
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: '_site'
-    artifact: 'prod'
+    artifact: 'preview'
     publishLocation: 'pipeline'
