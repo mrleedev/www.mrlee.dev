@@ -11,6 +11,7 @@ executable site
                   , process == 1.6.*
                   , text == 1.2.*
                   , split == 0.2.*
+                  , hakyll-images == 0.4.*
                   
   ghc-options:      -threaded
   default-language: Haskell2010
