@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>mrlee.dev - Hakyll on DevOps Pipelines</title>
+
+    <link rel="alternate" type="application/rss+xml" href="../../rss.xml" />
+    <link rel="alternate" type="application/atom+xml" href="../../atom.xml" />
+    <link rel="stylesheet" href="../../css/terminal.min.css" />
+    <link rel="stylesheet" href="../../css/main.css" />
+    <link rel="stylesheet" href="../../css/syntax.css">
+</head>
+
+<body class="terminal">
+    <div class="container">
+        <div class="terminal-nav">
+            <header class="terminal-logo">
+                <div class="logo terminal-prompt">
+                    <a class="no-style" href="../../">mrlee.dev</a>
+                    <span>special topics in calamity software dev</span>
+                </div>
+            </header>
+            <nav class="terminal-menu">
+                <ul vocab="https://schema.org/" typeof="BreadcrumbList">
+                    <li><a href="https://cv.mrlee.dev" style="display: none">Hire me</a></li>
+                    <li><a href="https://github.com/mrleedev/">Github</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <main class="container">
+        <article>
+    <header class="header inverse-video">
+        <h2 class="title">Hakyll on DevOps Pipelines</h2>
+        <span class="ert">~7 min. read</span>
+    </header>
+
+    <section>
+        <p>In a way, this is total overkill for a static site. If I have the repo cloned on my machine and I want to publish a new post, I can do it in two commands:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="ex">stack</span> exec site build</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="fu">scp</span> -r _site/ deploy@mrlee.dev:/var/www/www.mrlee.dev/</span></code></pre></div>
+<p>It’s flawed compared to using <code>rsync</code>, as it won’t remove existing files, but it does the job in less than a second or two.</p>
+<p>The thing is, this isn’t so quick if I want to publish a post from a different computer that doesn’t have any programming tools installed. I would have to install <code>stack</code><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, which is a build tool for Haskell, and then I would have to run <code>stack build</code>. This can take at least half an hour as the command will pull down the correct version of <code>GHC</code> and a ‘snapshot’ (basically a huge collection of all the Hackage<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> libraries available for that build) before it even <em>thinks</em> about compiling my <code>site.hs</code> file. It also means to committing a few gigs of storage space for all of that.</p>
+<p>I like to write from my little Surface Pro when I’m out and about, so I’d rather not do a full-blown compilation on that for the sake of my battery. Enter Azure DevOps Pipelines<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>.</p>
+<p>I’ve been keen on playing with these pipelines for a while, and much like any dev-tool, it has a free tier for open source repos. So does Github Actions<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>, which actually shares some of the underlying architecture of DevOps Pipelines, but I wanted to play with something different.</p>
+<p>Let’s do a step-by-step walk through my setup.</p>
+<hr />
+<div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="fu">trigger</span><span class="kw">:</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="at">  </span><span class="kw">-</span><span class="at"> master</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="fu">pool</span><span class="kw">:</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a><span class="at">  </span><span class="fu">vmImage</span><span class="kw">:</span><span class="at"> </span><span class="st">'ubuntu-latest'</span></span></code></pre></div>
+<p>This is pretty much CI boilerplate. The build will run on any PR that targets <code>master</code>, and it uses Ubuntu as the underlying image. I’m not doing any Docker stuff here.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="fu">jobs</span><span class="kw">:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="kw">-</span><span class="at"> </span><span class="fu">job</span><span class="kw">:</span><span class="at"> build</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="at">  </span><span class="fu">steps</span><span class="kw">:</span><span class="at"> ...</span></span></code></pre></div>
+<p>I only have a couple of jobs in this pipeline, to keep it simple. The next bunch of steps are nested under this.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">- </span><span class="fu">script</span><span class="kw">:</span><span class="at"> </span><span class="ch">|</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>      mkdir -p ~/.local/bin $(Build.BinariesDirectory)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>      curl -L https://get.haskellstack.org/stable/linux-x86_64.tar.gz | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Install Stack</span></span></code></pre></div>
+<p>Won’t get far without grabbing the latest stable Stack binary.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">-</span><span class="at"> </span><span class="fu">task</span><span class="kw">:</span><span class="at"> Cache@2</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Cache Stack/GHC snapshot</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a><span class="at">  </span><span class="fu">inputs</span><span class="kw">:</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a><span class="at">    </span><span class="fu">key</span><span class="kw">:</span><span class="at"> </span><span class="st">'stack | root'</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> .stack/</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a><span class="at">    </span><span class="fu">cacheHitVar</span><span class="kw">:</span><span class="at"> </span><span class="st">'STACK_SNAPSHOT_RESTORED'</span></span></code></pre></div>
+<p>Later on there will be a step that runs <code>stack build</code>, which will take about 40 minutes in CI. It would be a waste to repeatedly download all of that, so I’m caching the root stack folder for good measure. The <code>cacheHitVar</code> is something we will reference later.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="kw">-</span><span class="at"> </span><span class="fu">task</span><span class="kw">:</span><span class="at"> Cache@2</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Cache local stack deps</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a><span class="at">  </span><span class="fu">inputs</span><span class="kw">:</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a><span class="at">    </span><span class="fu">key</span><span class="kw">:</span><span class="at"> </span><span class="st">'stack | stack.yaml.lock'</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> .stack-work/</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a><span class="at">    </span><span class="fu">cacheHitVar</span><span class="kw">:</span><span class="at"> </span><span class="st">'STACK_DEPS_RESTORED'</span></span></code></pre></div>
+<p>This is the same as the last step, but it’s for the dependencies my static site requires. I want to cache these separately so adding a new project dependency doesn’t force a full refresh of the Stack snapshot.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">- </span><span class="fu">script</span><span class="kw">:</span><span class="at"> </span><span class="ch">|</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>      export PATH=$HOME/.local/bin:$PATH</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>      stack --no-terminal --stack-root $(System.DefaultWorkingDirectory)/.stack setup</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Build Snapshot</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a><span class="at">  </span><span class="fu">condition</span><span class="kw">:</span><span class="at"> ne(variables.STACK_SNAPSHOT_RESTORED, 'true')</span></span></code></pre></div>
+<p>Notice the <code>STACK_SNAPSHOT_RESTORED</code> condition at the bottom there? This step sets up GHC and the Stack snapshot, but only if one wasn’t restored from the cache. If the cache has it, then it will have alread been fetched.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="kw">- </span><span class="fu">script</span><span class="kw">:</span><span class="at"> </span><span class="ch">|</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>      export PATH=$HOME/.local/bin:$PATH</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>      stack --no-terminal --stack-root  $(System.DefaultWorkingDirectory)/.stack build</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Build Dependencies</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a><span class="at">  </span><span class="fu">condition</span><span class="kw">:</span><span class="at"> ne(variables.STACK_DEPS_RESTORED, 'true')</span></span></code></pre></div>
+<p>This is the same as above, but for the project dependencies. So far so good. We’re almost done now.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">- </span><span class="fu">script</span><span class="kw">:</span><span class="at"> </span><span class="ch">|</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>      export PATH=$HOME/.local/bin:$PATH</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>      stack --no-terminal --stack-root $(System.DefaultWorkingDirectory)/.stack install --local-bin-path $(Build.BinariesDirectory)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Build Site Executable</span></span></code></pre></div>
+<p>Since I’ve already run <code>stack build</code>, this just copies the binary to a different location, which I use to store it as a build artifact. <code>Build.BinariesDirectory</code> is a special place on the VM to store compiled build artifacts. It doesn’t matter where specifically that is, only that it’s the same across steps.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="kw">-</span><span class="at"> </span><span class="fu">task</span><span class="kw">:</span><span class="at"> PublishBuildArtifacts@1</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Save static site binary</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a><span class="at">  </span><span class="fu">inputs</span><span class="kw">:</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a><span class="at">    </span><span class="fu">pathToPublish</span><span class="kw">:</span><span class="at"> $(Build.BinariesDirectory)</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a><span class="at">    </span><span class="fu">artifactName</span><span class="kw">:</span><span class="at"> site</span></span></code></pre></div>
+<p>This is where that binaries directory comes into play, as I can tell Azure to upload everything in there as a build artifact, which I can then refer to in another job. This isn’t quite the same as a cache, as a build is not expected to fail if the cache goes missing. It would fail if the binary isn’t there though.</p>
+<p>So, that’s the first step done, but what about actually publishing a post? I have two jobs for that, which are very similar (one for draft posts/staging, one for prod). I’ll describe one of them.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">-</span><span class="at"> </span><span class="fu">job</span><span class="kw">:</span><span class="at"> deploy_published</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a><span class="at">  </span><span class="fu">dependsOn</span><span class="kw">:</span><span class="at"> build</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a><span class="at">  </span><span class="fu">condition</span><span class="kw">:</span><span class="at"> and(succeeded(), eq(variables['build.sourceBranchName'], 'master'))</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a><span class="at">  </span><span class="fu">steps</span><span class="kw">:</span><span class="at"> ...</span></span></code></pre></div>
+<p>The key to this step is the condition. This will run only if the <code>build</code> job was successful, <em>and</em> the branch being built is the master branch. Practically, this only runs if I push straight to master or merge a PR. The staging version runs only on PRs.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="kw">-</span><span class="at"> </span><span class="fu">task</span><span class="kw">:</span><span class="at"> DownloadBuildArtifacts@0</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Download site binary</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a><span class="at">  </span><span class="fu">inputs</span><span class="kw">:</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a><span class="at">    </span><span class="fu">artifactName</span><span class="kw">:</span><span class="at"> site</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a><span class="at">    </span><span class="fu">downloadPath</span><span class="kw">:</span><span class="at"> $(System.DefaultWorkingDirectory)</span></span></code></pre></div>
+<p>Time to put that binary I compiled to good use. It downloads it into the main working directory and I’ll call it directly in a later step. The executable is self-contained (or otherwise dynamically links stuff the image already has), so I don’t need to pull down Stack/GHC stuff again.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="kw">- </span><span class="fu">script</span><span class="kw">:</span><span class="at"> </span><span class="ch">|</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>      export PATH=$(System.DefaultWorkingDirectory)/site:$PATH</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>      chmod +x $(System.DefaultWorkingDirectory)/site/site</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a>      site build</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Build with published posts</span></span></code></pre></div>
+<p>This is the same as running <code>stack exec site build</code> on my local machine. It compiles the static site, so finally I’ll have a new version to upload.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">-</span><span class="at"> </span><span class="fu">task</span><span class="kw">:</span><span class="at"> InstallSSHKey@0</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Setup SSH</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a><span class="at">  </span><span class="fu">inputs</span><span class="kw">:</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true"></a><span class="at">    </span><span class="fu">knownHostsEntry</span><span class="kw">:</span><span class="at"> </span><span class="st">'$(NexusKnownHost)'</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true"></a><span class="at">    </span><span class="fu">sshKeySecureFile</span><span class="kw">:</span><span class="at"> </span><span class="st">'nexus_deploy'</span></span></code></pre></div>
+<p>I host this blog on my own little VPS, which means that the server needs to know that the CI is authorised to connect to it with its SSH key. This is the same as having a deploy key on GitHub, and requires generating a keypair to be stored in CI, with the public key being added to your <code>authorized_keys</code> file of the appropriate user on the server.</p>
+<p><em>(At this point I’ll say that if you’re doing this yourself, make sure to properly harden your server. I’ll describe this more in a follow-up post.)</em></p>
+<p>There’s only step left now, and that’s to deploy!</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="kw">-</span><span class="at"> </span><span class="fu">task</span><span class="kw">:</span><span class="at"> CopyFilesOverSSH@0</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Deploy to prod</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a><span class="at">  </span><span class="fu">inputs</span><span class="kw">:</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true"></a><span class="at">    </span><span class="fu">sshEndpoint</span><span class="kw">:</span><span class="at"> </span><span class="st">'Nexus'</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true"></a><span class="at">    </span><span class="fu">sourceFolder</span><span class="kw">:</span><span class="at"> </span><span class="st">'_site/'</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true"></a><span class="at">    </span><span class="fu">contents</span><span class="kw">:</span><span class="at"> </span><span class="st">'**'</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true"></a><span class="at">    </span><span class="fu">targetFolder</span><span class="kw">:</span><span class="at"> </span><span class="st">'/var/www/www.mrlee.dev'</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true"></a><span class="at">    </span><span class="fu">cleanTargetFolder</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true"></a><span class="at">    </span><span class="fu">readyTimeout</span><span class="kw">:</span><span class="at"> </span><span class="st">'20000'</span></span></code></pre></div>
+<p>This is similar to running <code>rsync</code> to deploy, except that it knows where to get your private key from and where to connect to. This is defined elsewhere in Azure DevOps, through the UI, rather than in the YAML file.</p>
+<p>To solve the issue I first mentioned, <code>cleanTargetFolder</code> makes sure to delete the previous deployment before copying the new one over. Problem solved!</p>
+<p>To see the pipeline in full, you can check out the full YAML file<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> and also the public builds<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>. I’ve been using it with success for the past couple of weeks now.</p>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p><a href="https://docs.haskellstack.org/en/stable/README/" class="uri">https://docs.haskellstack.org/en/stable/README/</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p><a href="https://hackage.haskell.org/" class="uri">https://hackage.haskell.org/</a><a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p><a href="https://dev.azure.com/" class="uri">https://dev.azure.com/</a><a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4" role="doc-endnote"><p><a href="https://github.com/features/actions" class="uri">https://github.com/features/actions</a><a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5" role="doc-endnote"><p><a href="https://github.com/mrleedev/www.mrlee.dev/blob/master/azure/pipeline.yml" class="uri">https://github.com/mrleedev/www.mrlee.dev/blob/master/azure/pipeline.yml</a><a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6" role="doc-endnote"><p><a href="https://dev.azure.com/mrleedev/www.mrlee.dev/_build/results?buildId=115" class="uri">https://dev.azure.com/mrleedev/www.mrlee.dev/_build/results?buildId=115</a><a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+    </section>
+</article>
+    </main>
+
+    <footer class="container">
+        <header>
+            <p class="modeline inverse-video">
+                -UUU:----F1&nbsp;&nbsp;Hakyll on DevOps Pipelines&nbsp;&nbsp;&nbsp;&nbsp;Bot L100%&nbsp;&nbsp;Git:master&nbsp;&nbsp;(HTML+)
+                ----------
+            </p>
+        </header>
+    </footer>
+
+</body>
+
+</html>

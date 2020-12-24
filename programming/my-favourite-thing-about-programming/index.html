@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>mrlee.dev - My favourite thing about programming</title>
+
+    <link rel="alternate" type="application/rss+xml" href="../../rss.xml" />
+    <link rel="alternate" type="application/atom+xml" href="../../atom.xml" />
+    <link rel="stylesheet" href="../../css/terminal.min.css" />
+    <link rel="stylesheet" href="../../css/main.css" />
+    <link rel="stylesheet" href="../../css/syntax.css">
+</head>
+
+<body class="terminal">
+    <div class="container">
+        <div class="terminal-nav">
+            <header class="terminal-logo">
+                <div class="logo terminal-prompt">
+                    <a class="no-style" href="../../">mrlee.dev</a>
+                    <span>special topics in calamity software dev</span>
+                </div>
+            </header>
+            <nav class="terminal-menu">
+                <ul vocab="https://schema.org/" typeof="BreadcrumbList">
+                    <li><a href="https://cv.mrlee.dev" style="display: none">Hire me</a></li>
+                    <li><a href="https://github.com/mrleedev/">Github</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <main class="container">
+        <article>
+    <header class="header inverse-video">
+        <h2 class="title">My favourite thing about programming</h2>
+        <span class="ert">~5 min. read</span>
+    </header>
+
+    <section>
+        <p>In a word: languages.</p>
+<p>A programming language is a way for man to communicate with machine just as spoken languages are a way for one person to verbally communicate with another. Of course, this is not the only way in either case: we have sign language, body language, written language, and ways of communicating that use all of the senses. In that sense, a programming language is just one way to talk to a computer, and it’s usually the way we write programs for it to execute for us. Human Interface Devices can also tell a computer what to do: a mouse controls your cursor, a keyboard controls typed instructions, and in reverse a monitor and speaker provide visual and audible feedback on your input.</p>
+<p>I don’t know why I explained all of that, it’s a bit wanky, but I suppose the key word is communication.</p>
+<p>I’m a fan of language in general, if such a fan can exist. I picked up a passable amount of Spanish during my time in Barcelona, learned how to read the Russian alphabet in about a weekend, and over a few years have slowly but surely learned how to properly read, write and speak the language a bit better. I find it fascinating.</p>
+<p>It’s not so different with programming languages and, honestly, I think the sheer variety of ways to write a program is what keeps me interested in the field, and keeps my mind open to different ways of thinking.</p>
+<p>Currently I’m playing with Haskell and also taking it a bit more seriously, to see if I can build a couple of things I can later integrate into this site. If you don’t know Haskell but have a background in PHP, Javascript, Java, or a C-like language, you might be in for a rude surprise when faced with a terse but insanely expressive syntax.</p>
+<p>For example, this is the function I have for generating the estimated reading time you see at the top of every post here:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="ot">ertField ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Snapshot</span> <span class="ot">-&gt;</span> <span class="dt">Context</span> <span class="dt">String</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>ertField name snapshot <span class="ot">=</span> field name <span class="op">$</span> \item <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>  body <span class="ot">&lt;-</span> itemBody <span class="op">&lt;$&gt;</span> loadSnapshot (itemIdentifier item) snapshot</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>  <span class="kw">let</span> <span class="fu">words</span> <span class="ot">=</span> <span class="fu">length</span> (T.words <span class="op">.</span> T.pack <span class="op">$</span> body)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>  <span class="fu">return</span> <span class="op">$</span> <span class="fu">show</span> <span class="op">$</span> <span class="fu">round</span> <span class="op">$</span> <span class="fu">words</span> <span class="op">//</span> <span class="dv">250</span></span></code></pre></div>
+<p>That’s a lot of symbols doing a lot of legwork! And while this is difficult to understand for an untrained eye, it would become more familiar after understanding some of the basic ‘rules’ of Haskell and the ‘styles’ of programming you can use. Of course, you can always take it too far:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a>(👏) <span class="ot">=</span> (<span class="op">$</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>ertField name snapshot <span class="ot">=</span> field name 👏 \item <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>  body <span class="ot">&lt;-</span> itemBody <span class="op">&lt;$&gt;</span> loadSnapshot (itemIdentifier item) snapshot</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>  <span class="kw">let</span> <span class="fu">words</span> <span class="ot">=</span> <span class="fu">length</span> (T.words <span class="op">.</span> T.pack 👏 body)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>  <span class="fu">return</span> 👏 <span class="fu">show</span> 👏 <span class="fu">round</span> 👏 <span class="fu">words</span> <span class="op">//</span> <span class="dv">250</span></span></code></pre></div>
+<p>That should go down well with the Twitter crowd.</p>
+<p>The reason I love Haskell is because it’s purely functional and that means you have to think about your problems and potential solutions in a different way. It’s a lot harder to procedurally hack things together, and it really takes you back to the fundamental concept of a function being something that takes input, acts on it, and provides output. It’s incredibly elegant.</p>
+<p>Moving on, there’s Lisp. My familiarity with Lisp comes from customising my emacs setup over the past several years, and it remains my favourite way to script an editor purely because of how powerful it is. The beauty of Lisp is the simplicity of its execution: everything is a list, and working with the language is hardly any different to directly modifying an abstract syntax tree (AST). This lends itself to a different kind of expressivity because there aren’t really that many rules around the syntax, and oftentimes your lisp application can be built entirely in a REPL due to the ability to change anything at runtime.</p>
+<p>With emacs in particular, it made it trivially easy for me to launch a Rails console inside a deployed Kubernetes pod.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>(<span class="kw">defun</span><span class="fu"> inf-ruby-console-k8s </span>(env)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>  (interactive (<span class="kw">list</span> (completing-read <span class="st">&quot;Environment: &quot;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>                                      '(<span class="st">&quot;dev&quot;</span> <span class="st">&quot;staging&quot;</span> <span class="st">&quot;preprod&quot;</span>) <span class="kw">nil</span> <span class="kw">t</span>)))</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>  (shell-command (concat <span class="st">&quot;kubectl config use-context &quot;</span> env))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>  (inf-ruby-console-run <span class="st">&quot;kubectl exec -it ruby-app -- rails c&quot;</span> (concat <span class="st">&quot;k8s-ruby-&quot;</span> env)))</span></code></pre></div>
+<p>I mapped it to a certain keybinding and a panel would open to the side within a second, ready for me to use. I don’t think I’d have the patience to try and reproduce that in, say, VS Code, without using a task runner. Emacs itself is entirely programmable so you don’t need to worry about setting up extension boilerplate to make minor modifications.</p>
+<p>I should round this post off with an even three examples, so my final two are Smalltalk and Prolog. I haven’t managed to build anything in it yet, as the learning curve is quite unlike any other. However, aspects of Smalltalk live on in languages like Ruby, where everything is an object and everything is defined in terms of message passing. I think Objective-C can be counted there too, although both languages diverge from some of Smalltalk’s ideals in the name of pragmatism. My short term goal with Smalltalk is to (attempt to) implement a raytracer as described in The Ray Tracer Challenge by James Buck<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, so I can better understand the language and apply what I’ve learned elsewhere.</p>
+<p>Prolog is on my list, and I keep coming back to it every couple of months to see what I’m inspired to do. I find it, and logic programming, intriguing, and I wonder how many problems would be solved a bit more easily that way compared to how we usually smush things together in procedural or OOP languages. Watch this space for more insight, I guess.</p>
+<p>One thing I’ve noticed while writing this is that each language selected has little in common with the other, and they’re quite unique in terms of how they look and how they’re understood by the computer. It all ends up as machine code at the end of the day, but the solution to a single problem would be drastically different in each one. It’s not so different with more common languages like Go, PHP, Javascript, Rust, or C++, really; you might be able to pick up the syntax fairly easily if you’ve used one of those languages but you’ll still have a fun time understanding the different rules they enforce, the different constraints you have work around.</p>
+<p>For as long as that remains true I think I’ll always have new toys to play with.</p>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p><a href="http://raytracerchallenge.com/" class="uri">http://raytracerchallenge.com/</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+    </section>
+</article>
+    </main>
+
+    <footer class="container">
+        <header>
+            <p class="modeline inverse-video">
+                -UUU:----F1&nbsp;&nbsp;My favourite thing about programming&nbsp;&nbsp;&nbsp;&nbsp;Bot L100%&nbsp;&nbsp;Git:master&nbsp;&nbsp;(HTML+)
+                ----------
+            </p>
+        </header>
+    </footer>
+
+</body>
+
+</html>

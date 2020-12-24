@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>mrlee.dev</title>
+    <link href="https://www.mrlee.dev/atom.xml" rel="self" />
+    <link href="https://www.mrlee.dev" />
+    <id>https://www.mrlee.dev/atom.xml</id>
+    <author>
+        <name>Lee Meichin</name>
+        <email>www@mrlee.dev</email>
+    </author>
+    <updated>2020-09-18T00:00:00Z</updated>
+    <entry>
+    <title>Devops</title>
+    <link href="https://www.mrlee.dev/programming/devops" />
+    <id>https://www.mrlee.dev/programming/devops</id>
+    <published>2020-09-18T00:00:00Z</published>
+    <updated>2020-09-18T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<article>
+    <header class="header inverse-video">
+        <h2 class="title">Devops</h2>
+        <span class="ert">~4 min. read</span>
+    </header>
+
+    <section>
+        <p>I recently left a healthcare company called Babylon a few weeks back. Of all the things I enjoyed there, and the things that made it unique, one has to be how it has managed to dance across the line between startup and enterprise. I don’t mean to say ‘enterprise’ in a perjorative sense; it’s more that you can’t really avoid that when you’re working in a heavily regulated and audited sector. Mistakes can be literally life or death, and the data collected over time includes people’s medical information and health records. There really isn’t any room for fucking about, but that doesn’t mean that other business functions have to be so serious.</p>
+<p>Enterprise might not be the best word, but it’s the only one I have right now, and nevertheless I took a few valuable lessons away from the experience that I now find it quite strange to be without.</p>
+<p>Let’s talk about bugs and production servers. Before Bablyon I had not worked in a single place that restricted access to production. As a developer working primarily with Ruby on Rails applications, getting prod access on Heroku or AWS was practically an onboarding step, and that meant I could easily boot up a console and modify the application runtime on the fly. This is an amazingly powerful tool in development and testing environments, it’s basically just a boostrapped REPL, but expose that in production and a malicious actor could wreak all sorts of havoc without leaving a trace. This is even worse if your rails app is running under <code>root</code> for some reason (e.g. through a poor Docker setup), as you can quite easily jump into a shell from there.</p>
+<p>You couldn’t do any of this at Bablyon because production and preprod were locked down <em>tight</em>, and even seeing production logs required a background check. This didn’t really make debugging worse, because instead there was a huge investment in tooling (internal and external) and developer experience to balance it out. One of my favourite outcomes of this is the creation of an open source tool for managing a Kubernetes cluster, called <code>shipcat</code><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. You know it’s good when it has its own cute logo.</p>
+<p>What I’ve since realised is that this particular crutch (live debugging in production) prevents the business from properly investing in safer and more compliant tools for engineers to investigate issues. You want proper structured logging, good alerting on error conditions, and a whole slew of observability (o11y) tools that can help you diagnose the system from the outside-in without compromising it. You want to have a team of impassioned engineers who enjoy working on internal productivity/efficacy, creating new tools to address pain-points in the organisation’s development and support lifecycle.</p>
+<p>The ELK stack seems to be the go-to solution for structured logging, and knowing how to work your way around Kibana (and Elasticsearch by extension) is invaluable. Not only can you trace logs to identify an issue, you can visualise them to get an idea of how pervasive that problem is. You know, you missed an N+1 query but a simple log visualisation showing thousands of similar requests in aggregate can help you identify that.</p>
+<p>Sentry is a fantastic tool for logging exceptions in more detail, as with the correct setup you can get a decent stacktrace and combine it with other information to learn more about a problem. Again, this aggregates errors for you so you can assess the scope and severity of the issue just by counting the number of events over time.</p>
+<p>Application Performance Management (APM) tools like New Relic and Datadog are similarly great, especially when dealing with microservices or a distributed codebase, as you can get a much bigger picture of what is happening across network boundaries, and not just in a single application. This would apply the same for your logs provided you pass around a correlation ID that allows you to group the various hops for a single inbound request.</p>
+<p>It’s not just about the code though, what about the infrastructure and the hardware? Grafana will sort you out there, so you can understand what sort of load your servers and databases are under.</p>
+<p>I feel like the devops culture is one that ultimately democratises your technology stack and the way it’s operated. It offers transparency into the system, allowing software engineers and platform/infrastructure engineers to make decisions based on the same information. It breaks down the silos you might typically build around the programming language you use, or how you deploy software, and who exactly should own that. Everyone can own it and bring their experience to the table to help iterate and improve.</p>
+<p>Before I proselytise too much, I think this is really important because you can only go so far before the luxury of directly debugging in production is stripped away. GDPR, HIPAA, PCI, etc. will surely see to that as your startup grows and expands. In place of that, you have a fantastic set of tools that can give you everything you need to kick off an investigation if something goes wrong, if you take the time to learn how to use them.</p>
+<p>And if I had one suggestion for any budding project finding itself in the hands of real life users in production, consider what you want your devops culture to be like and, if you can, see how early you can encourage your team without depending on offering wide-scale production access. And maybe even consider what kind of internal tooling you can build to improve the productivity and efficacy of your engineers.</p>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p><a href="https://github.com/babylonhealth/shipcat" class="uri">https://github.com/babylonhealth/shipcat</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+    </section>
+</article>]]></summary>
+</entry>
+<entry>
+    <title>Hakyll on DevOps Pipelines</title>
+    <link href="https://www.mrlee.dev/programming/hakyll-on-devops-pipelines" />
+    <id>https://www.mrlee.dev/programming/hakyll-on-devops-pipelines</id>
+    <published>2020-08-18T00:00:00Z</published>
+    <updated>2020-08-18T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<article>
+    <header class="header inverse-video">
+        <h2 class="title">Hakyll on DevOps Pipelines</h2>
+        <span class="ert">~7 min. read</span>
+    </header>
+
+    <section>
+        <p>In a way, this is total overkill for a static site. If I have the repo cloned on my machine and I want to publish a new post, I can do it in two commands:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="ex">stack</span> exec site build</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="fu">scp</span> -r _site/ deploy@mrlee.dev:/var/www/www.mrlee.dev/</span></code></pre></div>
+<p>It’s flawed compared to using <code>rsync</code>, as it won’t remove existing files, but it does the job in less than a second or two.</p>
+<p>The thing is, this isn’t so quick if I want to publish a post from a different computer that doesn’t have any programming tools installed. I would have to install <code>stack</code><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, which is a build tool for Haskell, and then I would have to run <code>stack build</code>. This can take at least half an hour as the command will pull down the correct version of <code>GHC</code> and a ‘snapshot’ (basically a huge collection of all the Hackage<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> libraries available for that build) before it even <em>thinks</em> about compiling my <code>site.hs</code> file. It also means to committing a few gigs of storage space for all of that.</p>
+<p>I like to write from my little Surface Pro when I’m out and about, so I’d rather not do a full-blown compilation on that for the sake of my battery. Enter Azure DevOps Pipelines<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>.</p>
+<p>I’ve been keen on playing with these pipelines for a while, and much like any dev-tool, it has a free tier for open source repos. So does Github Actions<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>, which actually shares some of the underlying architecture of DevOps Pipelines, but I wanted to play with something different.</p>
+<p>Let’s do a step-by-step walk through my setup.</p>
+<hr />
+<div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="fu">trigger</span><span class="kw">:</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="at">  </span><span class="kw">-</span><span class="at"> master</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="fu">pool</span><span class="kw">:</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a><span class="at">  </span><span class="fu">vmImage</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;ubuntu-latest&#39;</span></span></code></pre></div>
+<p>This is pretty much CI boilerplate. The build will run on any PR that targets <code>master</code>, and it uses Ubuntu as the underlying image. I’m not doing any Docker stuff here.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="fu">jobs</span><span class="kw">:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="kw">-</span><span class="at"> </span><span class="fu">job</span><span class="kw">:</span><span class="at"> build</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="at">  </span><span class="fu">steps</span><span class="kw">:</span><span class="at"> ...</span></span></code></pre></div>
+<p>I only have a couple of jobs in this pipeline, to keep it simple. The next bunch of steps are nested under this.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">- </span><span class="fu">script</span><span class="kw">:</span><span class="at"> </span><span class="ch">|</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>      mkdir -p ~/.local/bin $(Build.BinariesDirectory)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>      curl -L https://get.haskellstack.org/stable/linux-x86_64.tar.gz | tar xz --wildcards --strip-components=1 -C ~/.local/bin &#39;*/stack&#39;</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Install Stack</span></span></code></pre></div>
+<p>Won’t get far without grabbing the latest stable Stack binary.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">-</span><span class="at"> </span><span class="fu">task</span><span class="kw">:</span><span class="at"> Cache@2</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Cache Stack/GHC snapshot</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a><span class="at">  </span><span class="fu">inputs</span><span class="kw">:</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a><span class="at">    </span><span class="fu">key</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;stack | root&#39;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> .stack/</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a><span class="at">    </span><span class="fu">cacheHitVar</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;STACK_SNAPSHOT_RESTORED&#39;</span></span></code></pre></div>
+<p>Later on there will be a step that runs <code>stack build</code>, which will take about 40 minutes in CI. It would be a waste to repeatedly download all of that, so I’m caching the root stack folder for good measure. The <code>cacheHitVar</code> is something we will reference later.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="kw">-</span><span class="at"> </span><span class="fu">task</span><span class="kw">:</span><span class="at"> Cache@2</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Cache local stack deps</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a><span class="at">  </span><span class="fu">inputs</span><span class="kw">:</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a><span class="at">    </span><span class="fu">key</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;stack | stack.yaml.lock&#39;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a><span class="at">    </span><span class="fu">path</span><span class="kw">:</span><span class="at"> .stack-work/</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a><span class="at">    </span><span class="fu">cacheHitVar</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;STACK_DEPS_RESTORED&#39;</span></span></code></pre></div>
+<p>This is the same as the last step, but it’s for the dependencies my static site requires. I want to cache these separately so adding a new project dependency doesn’t force a full refresh of the Stack snapshot.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">- </span><span class="fu">script</span><span class="kw">:</span><span class="at"> </span><span class="ch">|</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>      export PATH=$HOME/.local/bin:$PATH</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>      stack --no-terminal --stack-root $(System.DefaultWorkingDirectory)/.stack setup</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Build Snapshot</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a><span class="at">  </span><span class="fu">condition</span><span class="kw">:</span><span class="at"> ne(variables.STACK_SNAPSHOT_RESTORED, &#39;true&#39;)</span></span></code></pre></div>
+<p>Notice the <code>STACK_SNAPSHOT_RESTORED</code> condition at the bottom there? This step sets up GHC and the Stack snapshot, but only if one wasn’t restored from the cache. If the cache has it, then it will have alread been fetched.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="kw">- </span><span class="fu">script</span><span class="kw">:</span><span class="at"> </span><span class="ch">|</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>      export PATH=$HOME/.local/bin:$PATH</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>      stack --no-terminal --stack-root  $(System.DefaultWorkingDirectory)/.stack build</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Build Dependencies</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a><span class="at">  </span><span class="fu">condition</span><span class="kw">:</span><span class="at"> ne(variables.STACK_DEPS_RESTORED, &#39;true&#39;)</span></span></code></pre></div>
+<p>This is the same as above, but for the project dependencies. So far so good. We’re almost done now.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">- </span><span class="fu">script</span><span class="kw">:</span><span class="at"> </span><span class="ch">|</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>      export PATH=$HOME/.local/bin:$PATH</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>      stack --no-terminal --stack-root $(System.DefaultWorkingDirectory)/.stack install --local-bin-path $(Build.BinariesDirectory)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Build Site Executable</span></span></code></pre></div>
+<p>Since I’ve already run <code>stack build</code>, this just copies the binary to a different location, which I use to store it as a build artifact. <code>Build.BinariesDirectory</code> is a special place on the VM to store compiled build artifacts. It doesn’t matter where specifically that is, only that it’s the same across steps.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="kw">-</span><span class="at"> </span><span class="fu">task</span><span class="kw">:</span><span class="at"> PublishBuildArtifacts@1</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Save static site binary</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a><span class="at">  </span><span class="fu">inputs</span><span class="kw">:</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a><span class="at">    </span><span class="fu">pathToPublish</span><span class="kw">:</span><span class="at"> $(Build.BinariesDirectory)</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a><span class="at">    </span><span class="fu">artifactName</span><span class="kw">:</span><span class="at"> site</span></span></code></pre></div>
+<p>This is where that binaries directory comes into play, as I can tell Azure to upload everything in there as a build artifact, which I can then refer to in another job. This isn’t quite the same as a cache, as a build is not expected to fail if the cache goes missing. It would fail if the binary isn’t there though.</p>
+<p>So, that’s the first step done, but what about actually publishing a post? I have two jobs for that, which are very similar (one for draft posts/staging, one for prod). I’ll describe one of them.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">-</span><span class="at"> </span><span class="fu">job</span><span class="kw">:</span><span class="at"> deploy_published</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a><span class="at">  </span><span class="fu">dependsOn</span><span class="kw">:</span><span class="at"> build</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a><span class="at">  </span><span class="fu">condition</span><span class="kw">:</span><span class="at"> and(succeeded(), eq(variables[&#39;build.sourceBranchName&#39;], &#39;master&#39;))</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a><span class="at">  </span><span class="fu">steps</span><span class="kw">:</span><span class="at"> ...</span></span></code></pre></div>
+<p>The key to this step is the condition. This will run only if the <code>build</code> job was successful, <em>and</em> the branch being built is the master branch. Practically, this only runs if I push straight to master or merge a PR. The staging version runs only on PRs.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="kw">-</span><span class="at"> </span><span class="fu">task</span><span class="kw">:</span><span class="at"> DownloadBuildArtifacts@0</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Download site binary</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a><span class="at">  </span><span class="fu">inputs</span><span class="kw">:</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a><span class="at">    </span><span class="fu">artifactName</span><span class="kw">:</span><span class="at"> site</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a><span class="at">    </span><span class="fu">downloadPath</span><span class="kw">:</span><span class="at"> $(System.DefaultWorkingDirectory)</span></span></code></pre></div>
+<p>Time to put that binary I compiled to good use. It downloads it into the main working directory and I’ll call it directly in a later step. The executable is self-contained (or otherwise dynamically links stuff the image already has), so I don’t need to pull down Stack/GHC stuff again.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="kw">- </span><span class="fu">script</span><span class="kw">:</span><span class="at"> </span><span class="ch">|</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>      export PATH=$(System.DefaultWorkingDirectory)/site:$PATH</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>      chmod +x $(System.DefaultWorkingDirectory)/site/site</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a>      site build</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Build with published posts</span></span></code></pre></div>
+<p>This is the same as running <code>stack exec site build</code> on my local machine. It compiles the static site, so finally I’ll have a new version to upload.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">-</span><span class="at"> </span><span class="fu">task</span><span class="kw">:</span><span class="at"> InstallSSHKey@0</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Setup SSH</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a><span class="at">  </span><span class="fu">inputs</span><span class="kw">:</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true"></a><span class="at">    </span><span class="fu">knownHostsEntry</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;$(NexusKnownHost)&#39;</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true"></a><span class="at">    </span><span class="fu">sshKeySecureFile</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;nexus_deploy&#39;</span></span></code></pre></div>
+<p>I host this blog on my own little VPS, which means that the server needs to know that the CI is authorised to connect to it with its SSH key. This is the same as having a deploy key on GitHub, and requires generating a keypair to be stored in CI, with the public key being added to your <code>authorized_keys</code> file of the appropriate user on the server.</p>
+<p><em>(At this point I’ll say that if you’re doing this yourself, make sure to properly harden your server. I’ll describe this more in a follow-up post.)</em></p>
+<p>There’s only step left now, and that’s to deploy!</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="kw">-</span><span class="at"> </span><span class="fu">task</span><span class="kw">:</span><span class="at"> CopyFilesOverSSH@0</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a><span class="at">  </span><span class="fu">displayName</span><span class="kw">:</span><span class="at"> Deploy to prod</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a><span class="at">  </span><span class="fu">inputs</span><span class="kw">:</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true"></a><span class="at">    </span><span class="fu">sshEndpoint</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;Nexus&#39;</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true"></a><span class="at">    </span><span class="fu">sourceFolder</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;_site/&#39;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true"></a><span class="at">    </span><span class="fu">contents</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;**&#39;</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true"></a><span class="at">    </span><span class="fu">targetFolder</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;/var/www/www.mrlee.dev&#39;</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true"></a><span class="at">    </span><span class="fu">cleanTargetFolder</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true"></a><span class="at">    </span><span class="fu">readyTimeout</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;20000&#39;</span></span></code></pre></div>
+<p>This is similar to running <code>rsync</code> to deploy, except that it knows where to get your private key from and where to connect to. This is defined elsewhere in Azure DevOps, through the UI, rather than in the YAML file.</p>
+<p>To solve the issue I first mentioned, <code>cleanTargetFolder</code> makes sure to delete the previous deployment before copying the new one over. Problem solved!</p>
+<p>To see the pipeline in full, you can check out the full YAML file<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> and also the public builds<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>. I’ve been using it with success for the past couple of weeks now.</p>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p><a href="https://docs.haskellstack.org/en/stable/README/" class="uri">https://docs.haskellstack.org/en/stable/README/</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p><a href="https://hackage.haskell.org/" class="uri">https://hackage.haskell.org/</a><a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p><a href="https://dev.azure.com/" class="uri">https://dev.azure.com/</a><a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4" role="doc-endnote"><p><a href="https://github.com/features/actions" class="uri">https://github.com/features/actions</a><a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5" role="doc-endnote"><p><a href="https://github.com/mrleedev/www.mrlee.dev/blob/master/azure/pipeline.yml" class="uri">https://github.com/mrleedev/www.mrlee.dev/blob/master/azure/pipeline.yml</a><a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6" role="doc-endnote"><p><a href="https://dev.azure.com/mrleedev/www.mrlee.dev/_build/results?buildId=115" class="uri">https://dev.azure.com/mrleedev/www.mrlee.dev/_build/results?buildId=115</a><a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+    </section>
+</article>]]></summary>
+</entry>
+<entry>
+    <title>My favourite thing about programming</title>
+    <link href="https://www.mrlee.dev/programming/my-favourite-thing-about-programming" />
+    <id>https://www.mrlee.dev/programming/my-favourite-thing-about-programming</id>
+    <published>2020-08-15T00:00:00Z</published>
+    <updated>2020-08-15T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<article>
+    <header class="header inverse-video">
+        <h2 class="title">My favourite thing about programming</h2>
+        <span class="ert">~5 min. read</span>
+    </header>
+
+    <section>
+        <p>In a word: languages.</p>
+<p>A programming language is a way for man to communicate with machine just as spoken languages are a way for one person to verbally communicate with another. Of course, this is not the only way in either case: we have sign language, body language, written language, and ways of communicating that use all of the senses. In that sense, a programming language is just one way to talk to a computer, and it’s usually the way we write programs for it to execute for us. Human Interface Devices can also tell a computer what to do: a mouse controls your cursor, a keyboard controls typed instructions, and in reverse a monitor and speaker provide visual and audible feedback on your input.</p>
+<p>I don’t know why I explained all of that, it’s a bit wanky, but I suppose the key word is communication.</p>
+<p>I’m a fan of language in general, if such a fan can exist. I picked up a passable amount of Spanish during my time in Barcelona, learned how to read the Russian alphabet in about a weekend, and over a few years have slowly but surely learned how to properly read, write and speak the language a bit better. I find it fascinating.</p>
+<p>It’s not so different with programming languages and, honestly, I think the sheer variety of ways to write a program is what keeps me interested in the field, and keeps my mind open to different ways of thinking.</p>
+<p>Currently I’m playing with Haskell and also taking it a bit more seriously, to see if I can build a couple of things I can later integrate into this site. If you don’t know Haskell but have a background in PHP, Javascript, Java, or a C-like language, you might be in for a rude surprise when faced with a terse but insanely expressive syntax.</p>
+<p>For example, this is the function I have for generating the estimated reading time you see at the top of every post here:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="ot">ertField ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Snapshot</span> <span class="ot">-&gt;</span> <span class="dt">Context</span> <span class="dt">String</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>ertField name snapshot <span class="ot">=</span> field name <span class="op">$</span> \item <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>  body <span class="ot">&lt;-</span> itemBody <span class="op">&lt;$&gt;</span> loadSnapshot (itemIdentifier item) snapshot</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>  <span class="kw">let</span> <span class="fu">words</span> <span class="ot">=</span> <span class="fu">length</span> (T.words <span class="op">.</span> T.pack <span class="op">$</span> body)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>  <span class="fu">return</span> <span class="op">$</span> <span class="fu">show</span> <span class="op">$</span> <span class="fu">round</span> <span class="op">$</span> <span class="fu">words</span> <span class="op">//</span> <span class="dv">250</span></span></code></pre></div>
+<p>That’s a lot of symbols doing a lot of legwork! And while this is difficult to understand for an untrained eye, it would become more familiar after understanding some of the basic ‘rules’ of Haskell and the ‘styles’ of programming you can use. Of course, you can always take it too far:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a>(👏) <span class="ot">=</span> (<span class="op">$</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>ertField name snapshot <span class="ot">=</span> field name 👏 \item <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>  body <span class="ot">&lt;-</span> itemBody <span class="op">&lt;$&gt;</span> loadSnapshot (itemIdentifier item) snapshot</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>  <span class="kw">let</span> <span class="fu">words</span> <span class="ot">=</span> <span class="fu">length</span> (T.words <span class="op">.</span> T.pack 👏 body)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>  <span class="fu">return</span> 👏 <span class="fu">show</span> 👏 <span class="fu">round</span> 👏 <span class="fu">words</span> <span class="op">//</span> <span class="dv">250</span></span></code></pre></div>
+<p>That should go down well with the Twitter crowd.</p>
+<p>The reason I love Haskell is because it’s purely functional and that means you have to think about your problems and potential solutions in a different way. It’s a lot harder to procedurally hack things together, and it really takes you back to the fundamental concept of a function being something that takes input, acts on it, and provides output. It’s incredibly elegant.</p>
+<p>Moving on, there’s Lisp. My familiarity with Lisp comes from customising my emacs setup over the past several years, and it remains my favourite way to script an editor purely because of how powerful it is. The beauty of Lisp is the simplicity of its execution: everything is a list, and working with the language is hardly any different to directly modifying an abstract syntax tree (AST). This lends itself to a different kind of expressivity because there aren’t really that many rules around the syntax, and oftentimes your lisp application can be built entirely in a REPL due to the ability to change anything at runtime.</p>
+<p>With emacs in particular, it made it trivially easy for me to launch a Rails console inside a deployed Kubernetes pod.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode commonlisp"><code class="sourceCode commonlisp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>(<span class="kw">defun</span><span class="fu"> inf-ruby-console-k8s </span>(env)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>  (interactive (<span class="kw">list</span> (completing-read <span class="st">&quot;Environment: &quot;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>                                      &#39;(<span class="st">&quot;dev&quot;</span> <span class="st">&quot;staging&quot;</span> <span class="st">&quot;preprod&quot;</span>) <span class="kw">nil</span> <span class="kw">t</span>)))</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>  (shell-command (concat <span class="st">&quot;kubectl config use-context &quot;</span> env))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>  (inf-ruby-console-run <span class="st">&quot;kubectl exec -it ruby-app -- rails c&quot;</span> (concat <span class="st">&quot;k8s-ruby-&quot;</span> env)))</span></code></pre></div>
+<p>I mapped it to a certain keybinding and a panel would open to the side within a second, ready for me to use. I don’t think I’d have the patience to try and reproduce that in, say, VS Code, without using a task runner. Emacs itself is entirely programmable so you don’t need to worry about setting up extension boilerplate to make minor modifications.</p>
+<p>I should round this post off with an even three examples, so my final two are Smalltalk and Prolog. I haven’t managed to build anything in it yet, as the learning curve is quite unlike any other. However, aspects of Smalltalk live on in languages like Ruby, where everything is an object and everything is defined in terms of message passing. I think Objective-C can be counted there too, although both languages diverge from some of Smalltalk’s ideals in the name of pragmatism. My short term goal with Smalltalk is to (attempt to) implement a raytracer as described in The Ray Tracer Challenge by James Buck<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, so I can better understand the language and apply what I’ve learned elsewhere.</p>
+<p>Prolog is on my list, and I keep coming back to it every couple of months to see what I’m inspired to do. I find it, and logic programming, intriguing, and I wonder how many problems would be solved a bit more easily that way compared to how we usually smush things together in procedural or OOP languages. Watch this space for more insight, I guess.</p>
+<p>One thing I’ve noticed while writing this is that each language selected has little in common with the other, and they’re quite unique in terms of how they look and how they’re understood by the computer. It all ends up as machine code at the end of the day, but the solution to a single problem would be drastically different in each one. It’s not so different with more common languages like Go, PHP, Javascript, Rust, or C++, really; you might be able to pick up the syntax fairly easily if you’ve used one of those languages but you’ll still have a fun time understanding the different rules they enforce, the different constraints you have work around.</p>
+<p>For as long as that remains true I think I’ll always have new toys to play with.</p>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p><a href="http://raytracerchallenge.com/" class="uri">http://raytracerchallenge.com/</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+    </section>
+</article>]]></summary>
+</entry>
+<entry>
+    <title>Celebrate each other</title>
+    <link href="https://www.mrlee.dev/personal/celebrate-each-other" />
+    <id>https://www.mrlee.dev/personal/celebrate-each-other</id>
+    <published>2020-08-03T00:00:00Z</published>
+    <updated>2020-08-03T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<article>
+    <header class="header inverse-video">
+        <h2 class="title">Celebrate each other</h2>
+        <span class="ert">~4 min. read</span>
+    </header>
+
+    <section>
+        <p>Back when I worked at Typeform<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, it really surprised me that they casually used a system of extrinsic motivation to reward good work, and to appreciate and recognise others. That’s a long-handed way of saying that they used a service called Bonusly<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> and integrated it with the company chat app, which at the time was HipChat<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> (hands up if you remember <em>not</em> using Slack?). We had an internal currency called Typecoin (TC)<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a> and you had a budget of 250 a month to offer to your fellow colleagues as an extra way of saying thanks, or shouting out. Those coins actually converted to cash or Amazon gift vouchers, it was actually pretty cool. Most of the time I’d cash out, go to the Mercadona by the beach at La Vila Olimpica (which was around the corner from our office), and buy around 10€ worth of Haribo sweets for the whole office to enjoy. It was usually either a ‘ThursYAY’ or ‘TuesYAY’ depending on what mood I was in.</p>
+<p>Of course, I’ve just linked recognition to financial reward. That wasn’t really the main goal of the system though, although it operated as a nice side-effect. You couldn’t gift some of your TC without connecting it to a company value and also explaining what they did to earn it, and all of this would be posted publically to a special channel in HipChat (as well as the application itself) for everyone to see. There was even a leaderboard and it was quite exciting to see who made it to the top each month (I held the record for a few months, it was a nice ego boost).</p>
+<p>This started off in a small company with only 37 people in it at the time I joined, two of them being the co-founders. Almost a year later and it was a company of more than 250 people, but the system continued and, quite surprisingly, didn’t really suffer for it. Reading all of the positive messages in the public typecoin channel was truly amazing, and aside from other things we did as part of the uniquely expressive culture we had, it was one of my favourite things to catch up with. You can probably tell from my writing that I miss my time there a lot.</p>
+<p>The reason I bring this up so fondly is because the act of recognition was an active one. It was hard to feel unappreciated or unloved in a place like Typeform when everyone was so open with appreciation and gratitude. I’ll let others speak for my possible role in that, but it wasn’t a thing to be ashamed of sharing the same way it can be in more repressive or corporate environments.</p>
+<p>The difference is that, for the majority of my career, recognition, acknowledgement and appreciation are not typically given in such an active way. The abundance of what you provide, that they appreciate, leads to it becoming an expectation. Only when it is time for you to leave or move on does the scarcity mindset kick in and you are showered with love and support. Because they won’t be able to enjoy your presence or benefit from your skills any more.</p>
+<p>Before I continue, I’m sure some people (particularly current colleagues) reading this at the time of writing will think… is Lee talking about Babylon<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> and why he’s leaving? Is he airing his laundry? Emphatically, I am not :) but let’s talk about Babylon anyway.</p>
+<p>When I joined Babylon in early 2019, one of the first things I did after settling in was, well, ‘make a name for myself’ on Slack. Because of course, HipChat stopped being a thing in 2019. I wanted to take that positivity I experienced at Typeform, in Barcelona, and everything I’d learned and loved since, and see if something similar could happen in London. I made a gratitude channel and basically name-dropped colleagues, explaining what I appreciated through the onboarding process and the initial few weeks. Little did I know a similar scheme was being built in parallel and not long after, we got our Feel Good Fridays, which accompanied a huge list of collated messages of gratitude, recognition, and acknowledgement from one colleague to another.</p>
+<p>Honestly, I live for that shit :D I love public displays of recognition because, so often, this stuff never happens until you’re gone and people miss whatever you did that made them so happy or grateful. Just a simple line of text with thank you or an explanation, along with hundreds of other similar lines meant for other people, that everybody could read through and really share in that celebration of each other, not just success.</p>
+<p>And that, for me, is my key learning after all these years. ‘Celebrating success’ is such an overused and misunderstood term that you never really see it happen. Besides which, there is plenty of failure that is also worth celebration. And plenty of stuff that doesn’t fit into the bucket of success or failure that deserves celebrating too. And you can be successful <em>within</em> a failure.</p>
+<p>What I’m saying in a pretty long-winded way is that we people make the success what it is, and success comes in so many diverse forms! It’s not just a project delivered on time, or a feature boosting MRR, or an uptick in retention against churn or whatever abstract work-related metric you can conjure up. It’s not just a business goal, it’s a <em>fucking plethora</em> of personal goals, desires, likes, dislikes, passions, and serendipitous interactions, all of which can mingle and mesh until you get that moment of genius, or you go home feeling happy and contented. Or whatever it is you want from life.</p>
+<p>Celebrate each other, celebrate yourselves. 🥳</p>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p><a href="https://www.typeform.com/" class="uri">https://www.typeform.com/</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p><a href="https://bonus.ly/" class="uri">https://bonus.ly/</a><a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p><a href="https://en.wikipedia.org/wiki/HipChat" class="uri">https://en.wikipedia.org/wiki/HipChat</a><a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4" role="doc-endnote"><p><a href="https://www.mrlee.dev/images/tc.jpg" class="uri">https://www.mrlee.dev/images/tc.jpg</a><a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5" role="doc-endnote"><p><a href="https://www.babylonhealth.com/" class="uri">https://www.babylonhealth.com/</a><a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+    </section>
+</article>]]></summary>
+</entry>
+<entry>
+    <title>A damn good listen</title>
+    <link href="https://www.mrlee.dev/personal/a-damn-good-listen" />
+    <id>https://www.mrlee.dev/personal/a-damn-good-listen</id>
+    <published>2020-08-01T00:00:00Z</published>
+    <updated>2020-08-01T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<article>
+    <header class="header inverse-video">
+        <h2 class="title">A damn good listen</h2>
+        <span class="ert">~3 min. read</span>
+    </header>
+
+    <section>
+        <p>A couple of years ago I enrolled in a coaching course with Coaching Development<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. It cost a fair whack and, even though I was unable to complete the course due to the severe decline in my mental health at the time, I still maintain that it’s the best money I’ve ever spent, and what I learned has stuck with me and essentially guided me towards a different path through life that I would otherwise never have taken. The lack of credential means I can’t practice as a coach, but the skills acquired are a great benefit to any communication driven profession, especially ones where conflict can easily brew up.</p>
+<p>Out of all of the things I picked up during those five months, one of a few quotes still stands out with me:</p>
+<blockquote>
+<p>Sometimes all somebody needs is a damn good listening to</p>
+<p><em>Colin Brett, 2018</em></p>
+</blockquote>
+<p>To be fair, the first thing I think of whenever I hear “damn good” anything is Special Agent Dale Cooper ordering a cherry pie and a coffee. But I hold Twin Peaks close to my heart; you won’t find any other television like it.</p>
+<p>Seriously though, I’m the sort of person who genuinely enjoys hearing people out. There are so many ways we as human beings can connect on this mortal coil–we can do it romantically, sexually, as friends or confidantes–and while I’m as fond of romance and carnal pleasures as anyone else is, there are few things more satisfying, more fulfilling, than a damn good listening session. It’s essentially a meditation, except that you’re clearing your mind of thoughts so that you can make space to to allow the other person’s thoughts and feelings in, judgment free.</p>
+<p>So many problems we have as individual people exist and grow out of proportion because the space or audience required to express those feelings was never up for offer. Raw emotions are dismissed, ignored, and twisted away from their original intent all the time, and all that arises from it is frustration, resentment, and in the worst case, the realisation of emotional abuse.</p>
+<p>For example, I was first diagnosed as clinically depressed back in 2010 after breaking up with my ex-girlfriend at the time. I lost her, and the dog who’d been with me for most of my <em>entire life</em>, since I was maybe 2 years old, died at the age of 21. That’s crazy for a dog, but the loss hurt like nothing else. And my grandad died and I dropped out of uni just before the final exams. But really my dog Suki welcoming the afterlife was the straw that broke the camel’s back. My mum understood, and she came to the doctor with me for emotional support. My dad, upon hearing about it, made it all about himself. Told me I’m living a shit life, it’s always been shit, and he should have done more to make it not shit.</p>
+<p>He wasn’t listening at all, he just took my extreme vulnerability and swapped it in for his own so he could go on about being a bad father. I must have spent more time listening to him and reassuring him, as if I just announced I had late stage cancer and had a few months to live.</p>
+<p>The problem, if you haven’t noticed it already, is that kind of approach only serves to push someone away. Why would you share your most intimate feelings or secrets with someone if all they will do is turn it into a problem of their own? As if everything is about them and not about you?</p>
+<p>To bring it back to now: the beauty of listening, the sheer magnificence of it, is that it helps build a truly priceless amount of trust and depth in your connection to the person sharing with you. It takes a lot to hear someone out without interjecting, but it also means a lot to receive it when you want to share too. Compassion and empathy are in short supply in general, yet they are ultimately powerful and transformative when offered.</p>
+<p>To wrap this up; sometimes the best, most enlightening conversations are the ones where you don’t say anything.</p>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p><a href="https://coachingdevelopment.com/" class="uri">https://coachingdevelopment.com/</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+    </section>
+</article>]]></summary>
+</entry>
+<entry>
+    <title>Do you really need those microservices?</title>
+    <link href="https://www.mrlee.dev/programming/do-you-really-need-those-microservices" />
+    <id>https://www.mrlee.dev/programming/do-you-really-need-those-microservices</id>
+    <published>2020-07-21T00:00:00Z</published>
+    <updated>2020-07-21T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<article>
+    <header class="header inverse-video">
+        <h2 class="title">Do you really need those microservices?</h2>
+        <span class="ert">~4 min. read</span>
+    </header>
+
+    <section>
+        <p>I’ve been through half a dozen rounds of interviewing over the past couple of months, with different companies. Naturally, when you say you’ve had experience working with microservices, you’re practically begging the question. What do you think about them?</p>
+<p>I’m not really for-or-against them, and in fact I find it a little strange and frustrating when it’s expected that you take a side in favour of having a nuanced opinion. The idea of being pro-microservice and anti-monolith, for example, is utterly absurd. It’s never really voiced that way, but it’s often easy to detect the absolutist stance masquerading as a balanced opinion. Even the title of this post falls victim to that, as the question presented is quite clearly loaded.</p>
+<p>Anyway, I love being asked this question because after a good five years of working with distributed systems orchestrated by Kubernetes, almost entirely in the form of ‘migrating away from the monolith’, I’ve had plenty of time to formulate and adapt my thinking around it.</p>
+<p>First and foremost, I believe the main benefit of a business switching to microservices is the manifestation of Conway’s Law<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> in practice. Prior to making the switch in architecture, the business most likely decided on an organisational structure that exchanges large, difficult to manage teams for a distributed collection of smaller, self-sufficient, self-empowered teams. More often than not these follow a squad and chapter model, otherwise reduced to ‘the Spotify model’, and a hierarchy of cross-functional teams is established. Once that structure is put in place and people are shuffled around a bit, the question of ownership in a mixed-responsibility, mixed-domain codebase becomes apparent. Microservices are thus the solution to a perceived conflict between squads and they shift a lot of that conflict from the teams themselves, to the channels in-between them.</p>
+<p>Under no circumstance is the technical implication of such a change considered, particularly in older codebases for which this change would introduce a significant level of disruption. The organisational benefits of distributing teams and workload are substantial, but the drawbacks of distributing <em>code</em> are similarly worthy of consideration too, and it often becomes a gateway to extra complexity as once-simple tasks find themselves spread apart over various network calls and machines.</p>
+<p>I don’t consider this a dealbreaker, but in my experience I’ve always felt like there’s a step missing between the singular, monolithic codebase and the highly distributed microservice architecture. There’s a hell of a lot you can do in that singular codebase, in terms of taking smaller steps towards a service-oriented architecture, or a domain-driven one.</p>
+<p>In those situations, you are investing primarily in the work required to understand the different domains in your codebase and how they speak to each other, with much lower risk than fundamentally changing your infrastructure as well as your architecture. In Ruby, you can abstract code into gems and provide solid, public APIs that other parts of the code can use. In Java you have modules and packages. Every language you care to use has the concept of packaging code into bundles or libraries that can be shared as a dependency.</p>
+<p>Adopting this workflow introduces much lower risk because, in the event of failure, you can easily adjust your expectations around the domains and how they communicate and fix them in a singular release. It may not be perfect, but if you refactor enough of your code in SOA<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>/DDD<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> style then you’ll have a much easier time turning those domains into proper microservices further down the line.</p>
+<p>This is where a microservice architecture truly shines. If you have clear, well bounded domains, and you’ve developed solid API contracts as well as standards for versioning, logging, etc to allow for centralised aggregation of useful resources (for debugging or auditing, for example), and if the team in charge of the domain can essentially treat that service as a full-blown product with documentation, support, and its own priorities and backlog, then that is where the power of that infrastructure comes into play.</p>
+<p>Another amazing usecase for this architecture is when you have strong regulatory requirements to sequester and protect personally identifying information. This could involve PCI compliance as a financial business, HIPAA as an American medical firm, or GDPR for a whole host of privacy concerns across the EU and the UK. Network access can be controlled much more easily than different modules or functions in your singular codebase, and the risk of a low-importance feature being compromised to access the critical resources in that case is far too high.</p>
+<p>I believe that’s a lot easier to do when you start early, but if you come to it late then you fall into an easy trap: how do you migrate your stuff into new services while also maintaining your existing codebase, along with all the features that you’re still expected to deliver? You can’t stop the world to rewrite all of the code, so there’s a possibility that you enter a refactoring spiral as your service plays cat and mouse with the monolith. This is infinitely more difficult when migrating a codebase written in a dynamic language, as automated refactoring is nowhere near as easy without a solid type-system to back it up.</p>
+<p>If I was to offer anybody advice about how to make all of this happen successfully, I’d say to stop thinking in terms of the existing monolith, and instead look at what individual products you could separate or extract, or even spin-off into their own businesses if the idea was unique enough to sell individually. And don’t jump to solutions like Kubernetes until you’re dealing with enough of these services that your existing deployment setup is too hard to manage.</p>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p><a href="https://en.wikipedia.org/wiki/Conway%27s_law" class="uri">https://en.wikipedia.org/wiki/Conway%27s_law</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p><a href="https://en.wikipedia.org/wiki/Service-oriented_architecture" class="uri">https://en.wikipedia.org/wiki/Service-oriented_architecture</a><a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p><a href="https://en.wikipedia.org/wiki/Domain-driven_design" class="uri">https://en.wikipedia.org/wiki/Domain-driven_design</a><a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+    </section>
+</article>]]></summary>
+</entry>
+<entry>
+    <title>A decade of work</title>
+    <link href="https://www.mrlee.dev/personal/a-decade-of-work" />
+    <id>https://www.mrlee.dev/personal/a-decade-of-work</id>
+    <published>2020-07-20T00:00:00Z</published>
+    <updated>2020-07-20T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<article>
+    <header class="header inverse-video">
+        <h2 class="title">A decade of work</h2>
+        <span class="ert">~7 min. read</span>
+    </header>
+
+    <section>
+        <p>I first ‘got into’ programming back in 2003, or 2004. I can’t remember the exact time, but it was at the point where Geocities and AngelFire were still a thing, as was Myspace. The in-thing was to host your own phpBB forum and, much like people will do with forks on github, branch off existing communities into your own ad-riddled alternative. I remember being involved in a few and, actually, a small number of them turned out to be quite successful.</p>
+<p>What also existed back then was the ‘dotTk’ domain, which allowed you to point all kinds of things to it, typically from weird free hosts like 20M. Of course, they would be ad-riddled too. This was before the time that even popup blockers were mainstream, and most of the ads were, in retrospect, quite goofy. You could ‘spank the monkey’ or fire darts and stuff in weird ad-based minigames. While you could easily get scammed or end up with a virus that dialled into a premium hotline using your landline, they feel a lot more innocent than the kind of misleading crap you get today, which is sometimes difficult to distinguish from genuine content.</p>
+<p>But, I digress, I’m not here to talk about advertising, social media, and the slow descent into madness of the modern internet, I’m here to talk about what it’s been like as a software developer (or engineer or whatever) over the past ten years of professional work with a good four or five on top as a newbie learning the ropes. This was the time when CSS was barely even standard, and building a website involved pirating a copy of Macromedia Dreamweaver (long since bought out by Adobe) and dragging layers of boxes around a window to get a layout you want. The HTML it would generate was truly awful and it was still common to do all of your layout with tables. It was generally easier to build for IE6 back then since the Mac didn’t enjoy the ubiquity it now does, and Firefox was still in its early-ish days. Javascript wasn’t really a thing back then, but DHTML<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> was all the rage and was what allowed you to put flaming cursors or snowflakes all over your page.</p>
+<p>I fondly remember that day when I dared to look at the generated HTML from my own example sites, and decided to learn how to write things by hand instead. It was all HTML4 back then, with XHTML on the horizon which promised a bit more strictness. Before then, I’d browse through Albino Blacksheep<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> and it’s collection of funny things that we now call ‘memes’, only back then they were a lot more creative and unique and only occasionally memetic, as in the case of Joel Veitch/rathergood.com and his being commissioned to do a TV ad in his style<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>.</p>
+<p>Back on topic, before I drown in nostalgia. The reason I mention Albino Blacksheep is because I <em>still</em>, after all this time, remember one post the author made about how he built the site. He said he did it all in Notepad. <em>Notepad</em>! If you’re not aware, Notepad is a barebones text editor on Windows, not unlike TextEdit on Mac. I was fascinated because, to my 15/16-year old mind, that seemed like an impossible feat.</p>
+<p>That was about the age that I went to sixth form, and I was lucky enough to get into one of the more prestiged colleges than most at my high school. It was just me and my best friend (also called Lee) basically, and we decided we wanted to go together. At the time I generally wasn’t thinking that programming would be a career for me, and my parents put a lot of pressure on me to get into ‘computing’ which for them meant computer repair so I could work for them for nothing whenever their stuff broke, which happened quite often. My dream back then was actually journalism and I did far better in English and classical literature than I did in IT (I got a D in my A-levels).</p>
+<p>I essentially got into programming as a joke, because a friend in my new social circle wanted a website, or at least hinted at it. I can’t fully remember what was on the site, but I used part of my part-time income from Tesco to buy a .co.uk domain in his name and point it to a little HTML thing I made and hosted through the registrar’s free web hosting service. All I needed was an FTP client and a bit of dragging and dropping.</p>
+<p>Before I even knew it I had ‘PHP4 for dummies’ and ‘MySQL for dummies’ on the desk under my weird bunk-bed setup, and I only found out about this stuff through faffing around with those phpBB forums and looking at the configs. I remember <em>why</em> I sought that out though: I had a different website and noticed that it always displayed the current time when you refreshed it. I searched for how to do it and found examples in PHP, mostly from the comments section that each page of PHP docs had. It was literally as simple as changing the file extension from <code>html</code> (or <code>htm</code>) to <code>php</code> and then adding <code>&lt;?php echo date(); ?&gt;</code> wherever you wanted it. Deploying it was a case of dragging and dropping through FTP as most of these shared hosts offered PHP by default.</p>
+<p>That was literally my first line of dynamic code.</p>
+<p>Skip ahead a few years, all the way to 2012 when I moved to London. I’d worked a PHP job full time before then but it was only at New Bamboo where I would find my form. They wrote everything in Ruby on Rails, and my experience in that was extremely minimal. Somehow I’d set up a redis server and had ruby communicating with it on my own hardware, but it didn’t do much and I couldn’t really figure out the code a few months after I wrote it. This required learning a lot of new things in terms of building application servers, and deploying code. Capistrano<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a> was the tool of choice in Ruby-land for deploying to a VPS and it was essentially a DSL over a bunch of shell scripts. In all honesty this DSL was great but were I not made to use it, I would be a lot more intimate with the power of SSH and tools like <code>scp</code>, and understanding the issue with things like forwarding your SSH agent because you pull from a private git repo on your server.</p>
+<p>I won’t talk much about the code, although my years at New Bamboo were truly formative. One thing has stuck with me since then though, over the 8 years since I was told it. My boss at the time saw I was struggling with managing the expectations of the client I was working with, and I was trying too hard to do things alone and hoping for the best instead of reaching out for the help that was readily available. I must have only been about 5 months into the job at that point. My boss took me into our boardroom, the table of which doubled up as a pingpong table, asked if I was alright, and then said something I’ve never forgotten since:</p>
+<p><em>“Being a great developer is about a lot more than writing great code.”</em></p>
+<p>Of course, at the time I was ashamed for mucking up and felt embarrased, but I was being given a piece of advice that would, in hindsight, radically change the direction of my career. I since became fascinated with the role of a scrum master, and took on the position full time myself. And as I moved into different positions at different companies (like Typeform and Friday Pulse), I continually realised that my favourite thing about programming wasn’t just the raw challenge of solving a problem in code, but in the <em>people</em> side of it. I’m not talking about management per se, it’s more about what else you can do with a good amount of knowledge and a strong desire to mentor and encourage those around you so they too can boost themselves up.</p>
+<p>That’s been an ongoing theme since mid-2015, even as I moved to Latvia and then eventually returned to London, and if anyone asks me what I consider to be great achievements when I interview, or have a conversation, I will always point to those people who I saw fluorish because they were given the time, space and effort to do so.</p>
+<p>Now it’s 2020, and not much has changed except that I enjoy the programming side of things a lot more than I used to. You could say that those two sides of the coin have started to merge into one imperfect sphere. Language is all communication and, these days, I enjoy trying to solve problems in different languages just so I can learn how to communicate similar technical things better in terms that I’m more familiar with. The same as I enjoy learning spoken languages to empathise in the same way.</p>
+<p>The world has changed <em>a lot</em> in all that time, and I now find myself in my thirties. Not once in my life did I ever think or believe I would be doing this kind of thing as a career, and I’ve grown to love it. If I were to tell my teenage self anything, knowing all of this… I would keep my mouth shut. He managed to figure it out just fine.</p>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p><a href="https://en.wikipedia.org/wiki/Dynamic_HTML" class="uri">https://en.wikipedia.org/wiki/Dynamic_HTML</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p><a href="https://www.albinoblacksheep.com/archive/" class="uri">https://www.albinoblacksheep.com/archive/</a><a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p><a href="https://www.youtube.com/watch?v=3AoNKGwBB74" class="uri">https://www.youtube.com/watch?v=3AoNKGwBB74</a><a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4" role="doc-endnote"><p><a href="https://capistranorb.com/" class="uri">https://capistranorb.com/</a><a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+    </section>
+</article>]]></summary>
+</entry>
+<entry>
+    <title>Isolation, aloneness and loneliness</title>
+    <link href="https://www.mrlee.dev/personal/isolation-aloneness-and-loneliness" />
+    <id>https://www.mrlee.dev/personal/isolation-aloneness-and-loneliness</id>
+    <published>2020-07-07T00:00:00Z</published>
+    <updated>2020-07-07T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<article>
+    <header class="header inverse-video">
+        <h2 class="title">Isolation, aloneness and loneliness</h2>
+        <span class="ert">~4 min. read</span>
+    </header>
+
+    <section>
+        <p>I don’t doubt that the COVID-19 situation this year has forced many of us to confront aspects of ourselves we were previously able to hide behind a mask. In some ways, this has been tragic and, unfortutely, traumatic as well. That isolatation has deprived partners from space away from their abusers at home, making a bad situation even worse for them. In other cases, it has made domestic violence much more apparent as people reveal an uglier side to themselves, frustrated by the prolonged contact. It’s truly devastating and it can be hard to comprehend the sort of horror that takes place in the home unless you’ve been unfortunate enough to suffer from it yourself. I suffered it myself, at the hands of my sister’s abusive boyfriend, and it was enough for me to contemplate life without any of my family in it. Took me a few years to follow up with that and come to terms with it, but I’m glad I did.</p>
+<p>That’s not the full topic of this post, but I think it’s important to acknowledge that because we all-too-often see the idea of a ‘relationship’ being the solution to a problem: not wanting to be single, feeling lonely and unhappy, seeing other people in happy relationships, etc. In reality, this sort of ‘solution-based’ relationship puts the onus on the other partner to make you feel happy or loved; not yourself. And for every person who hates their single life, there will be at least one other person who hates their married, or committed life, and struggles to see their way out of it and back towards independence.</p>
+<p>Now I’ve explained where I’m coming from, let’s move on.</p>
+<hr />
+<p>For a long time (up until the last few years) I’ve considered myself a lonely person, or a bit of a loner. It sounds like a label to identify by and, if I were to call myself a loner enough times, it surely would become an identity. What I really mean when I say it, though, is that I don’t feel like I have the capacity to provide myself the comfort, the fulfilment, the happiness, that I feel lacking in. There’s a psychological undercurrent to it of course, based on my childhood, but I’m ultimately disempowering myself and also signalling that I don’t really have that kind of positive feeling to give out either. There’s an absence of it and I’d like it if someone else shared some with me.</p>
+<p>Don’t get me wrong, everyone needs love, support, acknowledgement, recognition… and there’s no harm in asking for a proper big hug or a shoulder to cry on when you really want one. If you’re not afraid of asking for that kind of support then more power to you; it’s a brave move to be so open with your vulnerability that way.</p>
+<p>Eventually though, that continual desire to receive this energy from other people (as opposed to finding it within yourself somehow) is going to result in a self-fulfilling prophecy where you are convinced that you are lonely, or a loner, purely because you’ve taught yourself to believe that.</p>
+<p>I have to say that I’m endlessly grateful to my closest, bestest friends for pointing out to me that it does’t really have to be that way, so it was about five years ago that I started learning the difference between <em>lonely</em>-ness and <em>alone</em>-ness (deliberate mis-spellings for emphasis).</p>
+<p>I seriously enjoy being alone, and to understand the difference there was hugely empowering to me. It’s truly a liberating distinction that unlocks so many opportunities that were previously unavailable because of the expectation they had to be done ‘with someone’ or with a group. Maybe out of a desire to be romantic, or to share with someone, or just because society finds it weird if you don’t.</p>
+<p>Most of the places I’ve travelled to for a holiday have been alone. A week in Croatia, a few days in Mykonos before my best friend turned up, a weekend in Istanbul and in Verona, etc. This of course necessitates dining alone, and it feels great to ask for a table for one and then watch the world go by with a nice meal and a good book, maybe sharing a few stories with the waiters and waitresses there. Beyond that, a trip to the cinema by yourself can be quite refreshing too. There’s not really a limit to it once you can stop worrying about what other people really really aren’t thinking about you.</p>
+<p>The difference here is that there is a source of happiness and comfort in the aloneness, and it is self-sufficient. It doesn’t completely remove feelings of loneliness, as there can still be underlying reasons for that emotion, but in and of itself it can be hugely enriching, maturing, and enlightening.</p>
+<hr />
+<p>So how does this pertain to the lockdown period we’ve found ourselves in since March? I have to admit that I’ve felt pangs of loneliness every now and then, and I seriously miss the social chit-chat at the pub after work, or meeting up with close friends to chill out. At the same time, I’ve discovered enough in myself over recent years to give me plenty to engage with and enjoy while I’m alone at home. As much as I’d love to dip my feet in more social things, like the dating scene and such like, I still feel quite comfortable riding this out by myself until I’m comfortable that it’s safer for me to do so. It’s a great feeling to have.</p>
+<p>That said, I do have to take care with how I feel about this because one aspect of depression is a tendency to disconnect and isolate, so some level of self-awareness is required to tell the difference between cutting myself off and hiding from the world, and just enjoying my own company.</p>
+<p>I started off the post talking about relationships, and not in a positive way either. It’s taken me a long time to establish this mindset, and properly ingrain it into my thinking process, but it also feels great knowing this, understanding that using another person as a solution to loneliness–a relationship as a means to an end–isn’t really a good or balanced foundation to authentically build a connection from.</p>
+<p>The lockdown has been a great way to cement that in place for me and when all is said and done, it will definitely have had an impact on how I enjoy life from here on out.</p>
+<p>🕉</p>
+<p><small>P.S. I promise I’ll write some programming related stuff soon :))</small></p>
+    </section>
+</article>]]></summary>
+</entry>
+<entry>
+    <title>On Sharing Vulnerability</title>
+    <link href="https://www.mrlee.dev/personal/on-sharing-vulnerability" />
+    <id>https://www.mrlee.dev/personal/on-sharing-vulnerability</id>
+    <published>2020-07-03T00:00:00Z</published>
+    <updated>2020-07-03T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<article>
+    <header class="header inverse-video">
+        <h2 class="title">On Sharing Vulnerability</h2>
+        <span class="ert">~3 min. read</span>
+    </header>
+
+    <section>
+        <p>One of the most wonderful things I’ve seen on the internet in recent years is our growing willingness to be vulnerable, together. I have to admit that this wasn’t really a ‘thing’ for me until I’d read Daring Greatly by Brene Brown<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, as well as Rising Strong<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. As far as self help books go, I don’t think I would actually categorise them as such.</p>
+<p>Even LinkedIn these days is full of posts of people sharing their failures, admitting mistakes, dropping their egos, and being authentic with each other in favour of presenting a flawless persona. It’s a beautiful thing, to allow yourself to be yourself, your very human self, without the pressure of having to appear flawless.</p>
+<p>For me, this extends a bit further although I appreciate that it’s something that has to be taken on balance, because there’s a difference between making mistakes and doing the same thing deliberately or with purpose. For example, when I record a video for Youtube, I’ll generally go for one take, without any editing beyond making sure the sound of my voice isn’t too quiet, or doesn’t blow your eardrums out. All of the vocal mistakes and mis-spoken words will remain, as will the pauses for thought.</p>
+<p>As a software engineer, this happens a lot when writing code and architecting systems too. I suppose I’m a mix between a try-hard and a people-pleaser, so the bar I set for myself is miles higher than the expectations anyone else have, if they have any at all. In that situation, I’ve raised the stakes for myself so fucking high that even the slightest error can be heartbreaking. Thankfully I’ve brought that under control over the years, as I’ve grown older and wiser, but I still notice it in myself. It’s funny though, because through my training as a coach, and through my experience of co-founding and coaching at Rails Girls London, I am a lot more effective at guiding others through similar challenges than I am with applying them to myself.</p>
+<p>As you might have guessed, it’s a lot easier to take care of others instead of taking care of yourself and, at least in the West, we’ve ended up with this bizarre, paradoxical mix of individualism and selflessness. You know, you own your success but others are responsible for your failures. It’s pretty toxic, but I digress.</p>
+<p>I’m not sure what point I’m trying to make, except that I appreciate the injection of humanity into our disembodied communications over the internet. Being vulnerable isn’t just sharing your childhood trauma or doing a bit of emotional dumping, as valid as those are in some situations, but also drawing back the curtains in front of your heart and releasing some of that darkness into the light that others cast.</p>
+<p>Ok, that’s a weird metaphor I know, I’m not even sure I like it :D but you know, it was the first thing that came into my mind and my experiences over the past five or six years have led me to confront my own shadow face to face. Light and dark kind of fits, so long as you don’t consider them good and bad. They are neither, just different.</p>
+<p>To wrap this up, I recognise that a lot of people personally reach out to me and share their appreciation for me sharing my own vulnerability. For me, it’s almost normal, although it’s taken a while to figure out how to express it in a healthier way, while continuing to empower myself as opposed to retreating into those frankly shitty feelings and memories. At one time, I found it hard as well, but I had amazing support all the way along and I was never alone with it.</p>
+<p>So, considering that we see ourselves becoming more distant as a result of the COVID situation, I encourage anyone who reads this to attempt a bold move into the uncomfortable and see how they might introduce their humanity into their internet persona. Share and share alike.</p>
+<p>❤</p>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p><a href="https://www.amazon.co.uk/Daring-Greatly-Courage-Vulnerable-Transforms/dp/1592408419" class="uri">https://www.amazon.co.uk/Daring-Greatly-Courage-Vulnerable-Transforms/dp/1592408419</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p><a href="https://www.amazon.co.uk/Rising-Strong-Bren%C3%A9-Brown/dp/0091955033" class="uri">https://www.amazon.co.uk/Rising-Strong-Bren%C3%A9-Brown/dp/0091955033</a><a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+    </section>
+</article>]]></summary>
+</entry>
+<entry>
+    <title>Blogging in Haskell</title>
+    <link href="https://www.mrlee.dev/programming/blogging-in-haskell" />
+    <id>https://www.mrlee.dev/programming/blogging-in-haskell</id>
+    <published>2020-06-27T00:00:00Z</published>
+    <updated>2020-06-27T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<article>
+    <header class="header inverse-video">
+        <h2 class="title">Blogging in Haskell</h2>
+        <span class="ert">~4 min. read</span>
+    </header>
+
+    <section>
+        <p>It’s taken me quite a while to settle on a particular look and feel for this blog. Rather than just having an outlet for writing, I wanted the creation of it to be a learning experience too. Hugo<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, Gatsby<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> and Zola<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>, with Netlify CMS<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a> as a fancy interface for writing posts on top of it all. Each attempt left me feeling less inspired than the last.</p>
+<p>Eventually I stumbled across Hakyll<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> and, after finding a CSS ‘framework’ that gave the appearance of a terminal UI<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>, I felt like I had enough to get things off the ground.</p>
+<p>The major appeal so far has been the immense ease of customisation. Hakyll itself isn’t a static site generator in the same sense that others are, and as a result it offers a layer of customisation that other generators generally defer to templating languages for.</p>
+<p>The main difference is that you don’t pull down a <code>hakyll</code> binary and then throw a <code>yaml</code> file together in order to configure a few pre-defined properties; you’re instead given a basic implementation of a generator, using hakyll’s own library, and thus have complete control over routing, page generation, templating, and so on. This generally lives in a <code>site.hs</code> file and it’s not difficult to follow even for relative newbies to Haskell. The structure of everything else is entirely up to you.</p>
+<p>Once you compile this file, you end up with a nice binary, e.g. <code>site</code>, and <em>that</em> is what you use to generate your site. It is beautiful in its elegance and I’m eager to see what I can add to this site while also learning some more Haskell at the same time.</p>
+<p>As an example, on the home page, there is a <code>git log</code> output section. It’s fairly primitive, although I intend to build out the functionality a bit more. Writing the functionality was fairly effortless, with the help of some other authors on the net:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">data</span> <span class="dt">GitLog</span> <span class="ot">=</span> <span class="dt">Hash</span> <span class="op">|</span> <span class="dt">Commit</span> <span class="op">|</span> <span class="dt">Full</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>  <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Read</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">GitLog</span> <span class="kw">where</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>  <span class="fu">show</span> content <span class="ot">=</span> <span class="kw">case</span> content <span class="kw">of</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>    <span class="dt">Hash</span>   <span class="ot">-&gt;</span> <span class="st">&quot;%h&quot;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>    <span class="dt">Commit</span> <span class="ot">-&gt;</span> <span class="st">&quot;%h: %s&quot;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>    <span class="dt">Full</span>   <span class="ot">-&gt;</span> <span class="st">&quot;%h: %s (%ai)&quot;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a><span class="ot">getGitLog ::</span> <span class="dt">GitLog</span> <span class="ot">-&gt;</span> <span class="dt">Integer</span> <span class="ot">-&gt;</span> <span class="dt">FilePath</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> [<span class="dt">String</span>]</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a>getGitLog content limit path <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a>  (status, stdout, _) <span class="ot">&lt;-</span> readProcessWithExitCode</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a>    <span class="st">&quot;git&quot;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a>    [ <span class="st">&quot;log&quot;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a>    , <span class="st">&quot;--format=&quot;</span> <span class="op">++</span> <span class="fu">show</span> content</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a>    , <span class="st">&quot;--max-count=&quot;</span> <span class="op">++</span> <span class="fu">show</span> limit</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true"></a>    , <span class="st">&quot;--&quot;</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true"></a>    , path</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true"></a>    ]</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true"></a>    <span class="st">&quot;&quot;</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true"></a>  <span class="fu">return</span> <span class="op">$</span> <span class="kw">case</span> status <span class="kw">of</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true"></a>    <span class="dt">ExitSuccess</span> <span class="ot">-&gt;</span> splitOn <span class="st">&quot;\n&quot;</span> (trim stdout)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true"></a>    _           <span class="ot">-&gt;</span> [<span class="st">&quot;&quot;</span>]</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true"></a>  <span class="kw">where</span> trim <span class="ot">=</span> dropWhileEnd <span class="fu">isSpace</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true"></a>logListField</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true"></a><span class="ot">  ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">GitLog</span> <span class="ot">-&gt;</span> <span class="dt">Integer</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Context</span> <span class="dt">String</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true"></a>logListField pluralName singularName style limit path <span class="ot">=</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true"></a>  listField pluralName ctx <span class="op">$</span> unsafeCompiler <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true"></a>    logs <span class="ot">&lt;-</span> getGitLog style limit path</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true"></a>    <span class="fu">return</span> <span class="op">$</span> <span class="fu">map</span> logItem logs</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true"></a> <span class="kw">where</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true"></a>  ctx <span class="ot">=</span> field singularName (<span class="fu">return</span> <span class="op">.</span> <span class="fu">show</span> <span class="op">.</span> itemBody)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true"></a>  logItem <span class="fu">log</span> <span class="ot">=</span> <span class="dt">Item</span> (fromString <span class="op">$</span> path <span class="op">++</span> <span class="st">&quot;/log/&quot;</span> <span class="op">++</span> <span class="fu">log</span>) <span class="fu">log</span></span></code></pre></div>
+<p>The result of adding this code, and then inserting it into the template context, is that I have a new template variable that I can loop over, for each log item. The practical use is fairly limited, but I like it because it adds a certain flavour to the site. Later on I will try to use a parser combinator library to be able to present the different parts of the log with more control.</p>
+<p>In any case, I’ve enjoyed playing around with Haskell in order to deploy this site, and I’m looking forward to seeing what else I can build with the language. It’s truly fascinating.</p>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p><a href="https://gohugo.io/" class="uri">https://gohugo.io/</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p><a href="https://www.gatsbyjs.org/" class="uri">https://www.gatsbyjs.org/</a><a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p><a href="https://www.getzola.org/" class="uri">https://www.getzola.org/</a><a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4" role="doc-endnote"><p><a href="https://www.netlifycms.org/" class="uri">https://www.netlifycms.org/</a><a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5" role="doc-endnote"><p><a href="https://jaspervdj.be/hakyll/" class="uri">https://jaspervdj.be/hakyll/</a><a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6" role="doc-endnote"><p><a href="https://terminalcss.xyz/" class="uri">https://terminalcss.xyz/</a><a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+    </section>
+</article>]]></summary>
+</entry>
+
+</feed>
