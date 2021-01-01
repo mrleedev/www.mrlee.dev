@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <title>mrlee.dev</title>
-    <link href="https://www.mrlee.dev/atom.xml" rel="self" />
-    <link href="https://www.mrlee.dev" />
-    <id>https://www.mrlee.dev/atom.xml</id>
+    <title>kamelasa.dev</title>
+    <link href="https://www.kamelasa.dev/atom.xml" rel="self" />
+    <link href="https://www.kamelasa.dev" />
+    <id>https://www.kamelasa.dev/atom.xml</id>
     <author>
         <name>Lee Meichin</name>
         <email>www@mrlee.dev</email>
@@ -11,8 +11,8 @@
     <updated>2020-12-31T00:00:00Z</updated>
     <entry>
     <title>Can you crack the code?</title>
-    <link href="https://www.mrlee.dev/programming/can-you-crack-the-code" />
-    <id>https://www.mrlee.dev/programming/can-you-crack-the-code</id>
+    <link href="https://www.kamelasa.dev/programming/can-you-crack-the-code" />
+    <id>https://www.kamelasa.dev/programming/can-you-crack-the-code</id>
     <published>2020-12-31T00:00:00Z</published>
     <updated>2020-12-31T00:00:00Z</updated>
     <summary type="html"><![CDATA[<article>
@@ -226,8 +226,8 @@ Two numbers are correct, but in the wrong place.</p>
 </entry>
 <entry>
     <title>Devops</title>
-    <link href="https://www.mrlee.dev/programming/devops" />
-    <id>https://www.mrlee.dev/programming/devops</id>
+    <link href="https://www.kamelasa.dev/programming/devops" />
+    <id>https://www.kamelasa.dev/programming/devops</id>
     <published>2020-09-18T00:00:00Z</published>
     <updated>2020-09-18T00:00:00Z</updated>
     <summary type="html"><![CDATA[<article>
@@ -260,8 +260,8 @@ Two numbers are correct, but in the wrong place.</p>
 </entry>
 <entry>
     <title>Hakyll on DevOps Pipelines</title>
-    <link href="https://www.mrlee.dev/programming/hakyll-on-devops-pipelines" />
-    <id>https://www.mrlee.dev/programming/hakyll-on-devops-pipelines</id>
+    <link href="https://www.kamelasa.dev/programming/hakyll-on-devops-pipelines" />
+    <id>https://www.kamelasa.dev/programming/hakyll-on-devops-pipelines</id>
     <published>2020-08-18T00:00:00Z</published>
     <updated>2020-08-18T00:00:00Z</updated>
     <summary type="html"><![CDATA[<article>
@@ -385,8 +385,8 @@ Two numbers are correct, but in the wrong place.</p>
 </entry>
 <entry>
     <title>My favourite thing about programming</title>
-    <link href="https://www.mrlee.dev/programming/my-favourite-thing-about-programming" />
-    <id>https://www.mrlee.dev/programming/my-favourite-thing-about-programming</id>
+    <link href="https://www.kamelasa.dev/programming/my-favourite-thing-about-programming" />
+    <id>https://www.kamelasa.dev/programming/my-favourite-thing-about-programming</id>
     <published>2020-08-15T00:00:00Z</published>
     <updated>2020-08-15T00:00:00Z</updated>
     <summary type="html"><![CDATA[<article>
@@ -440,8 +440,8 @@ Two numbers are correct, but in the wrong place.</p>
 </entry>
 <entry>
     <title>Celebrate each other</title>
-    <link href="https://www.mrlee.dev/personal/celebrate-each-other" />
-    <id>https://www.mrlee.dev/personal/celebrate-each-other</id>
+    <link href="https://www.kamelasa.dev/personal/celebrate-each-other" />
+    <id>https://www.kamelasa.dev/personal/celebrate-each-other</id>
     <published>2020-08-03T00:00:00Z</published>
     <updated>2020-08-03T00:00:00Z</updated>
     <summary type="html"><![CDATA[<article>
@@ -477,8 +477,8 @@ Two numbers are correct, but in the wrong place.</p>
 </entry>
 <entry>
     <title>A damn good listen</title>
-    <link href="https://www.mrlee.dev/personal/a-damn-good-listen" />
-    <id>https://www.mrlee.dev/personal/a-damn-good-listen</id>
+    <link href="https://www.kamelasa.dev/personal/a-damn-good-listen" />
+    <id>https://www.kamelasa.dev/personal/a-damn-good-listen</id>
     <published>2020-08-01T00:00:00Z</published>
     <updated>2020-08-01T00:00:00Z</updated>
     <summary type="html"><![CDATA[<article>
@@ -513,8 +513,8 @@ Two numbers are correct, but in the wrong place.</p>
 </entry>
 <entry>
     <title>Do you really need those microservices?</title>
-    <link href="https://www.mrlee.dev/programming/do-you-really-need-those-microservices" />
-    <id>https://www.mrlee.dev/programming/do-you-really-need-those-microservices</id>
+    <link href="https://www.kamelasa.dev/programming/do-you-really-need-those-microservices" />
+    <id>https://www.kamelasa.dev/programming/do-you-really-need-those-microservices</id>
     <published>2020-07-21T00:00:00Z</published>
     <updated>2020-07-21T00:00:00Z</updated>
     <summary type="html"><![CDATA[<article>
@@ -549,8 +549,8 @@ Two numbers are correct, but in the wrong place.</p>
 </entry>
 <entry>
     <title>A decade of work</title>
-    <link href="https://www.mrlee.dev/personal/a-decade-of-work" />
-    <id>https://www.mrlee.dev/personal/a-decade-of-work</id>
+    <link href="https://www.kamelasa.dev/personal/a-decade-of-work" />
+    <id>https://www.kamelasa.dev/personal/a-decade-of-work</id>
     <published>2020-07-20T00:00:00Z</published>
     <updated>2020-07-20T00:00:00Z</updated>
     <summary type="html"><![CDATA[<article>
@@ -590,8 +590,8 @@ Two numbers are correct, but in the wrong place.</p>
 </entry>
 <entry>
     <title>Isolation, aloneness and loneliness</title>
-    <link href="https://www.mrlee.dev/personal/isolation-aloneness-and-loneliness" />
-    <id>https://www.mrlee.dev/personal/isolation-aloneness-and-loneliness</id>
+    <link href="https://www.kamelasa.dev/personal/isolation-aloneness-and-loneliness" />
+    <id>https://www.kamelasa.dev/personal/isolation-aloneness-and-loneliness</id>
     <published>2020-07-07T00:00:00Z</published>
     <updated>2020-07-07T00:00:00Z</updated>
     <summary type="html"><![CDATA[<article>
@@ -624,8 +624,8 @@ Two numbers are correct, but in the wrong place.</p>
 </entry>
 <entry>
     <title>On Sharing Vulnerability</title>
-    <link href="https://www.mrlee.dev/personal/on-sharing-vulnerability" />
-    <id>https://www.mrlee.dev/personal/on-sharing-vulnerability</id>
+    <link href="https://www.kamelasa.dev/personal/on-sharing-vulnerability" />
+    <id>https://www.kamelasa.dev/personal/on-sharing-vulnerability</id>
     <published>2020-07-03T00:00:00Z</published>
     <updated>2020-07-03T00:00:00Z</updated>
     <summary type="html"><![CDATA[<article>
