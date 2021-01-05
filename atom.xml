@@ -32,7 +32,7 @@
 <hr />
 <h2 id="hello-pi.">Hello, Pi.</h2>
 <p>The first and most complicated part of any low-level project is the bit where you try and establish a build system of some sorts. We’re going to forget about that completely for now and apply some elbow-grease to the situation.</p>
-<p>The next step is to define a <code>main</code> function that grabs a file descriptor (or handle) corresponding to our OLED display. According to the aforementioned dev interface docs</p>
+<p>The next step is to define a <code>main</code> function that grabs a file descriptor (or handle) corresponding to our OLED display. According to the aforementioned dev interface docs, we’ll need to open a file and check it with <code>ioctl</code>.</p>
 <pre class="zig"><code>const std = @import(&quot;std&quot;);
 
 const c = @cImport({
