@@ -7,8 +7,233 @@
         <description><![CDATA[Special topics in calamity something or other]]></description>
         <atom:link href="https://www.kamelasa.dev/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Thu, 31 Dec 2020 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Tue, 05 Jan 2021 00:00:00 UT</lastBuildDate>
         <item>
+    <title>Gettin' Ziggy With It On The Pi Zero</title>
+    <link>https://www.kamelasa.dev/programming/gettin-ziggy-with-it-pi-zero</link>
+    <description><![CDATA[<article>
+    <header class="header inverse-video">
+        <h2 class="title">Gettin' Ziggy With It On The Pi Zero</h2>
+        <span class="ert">~10 min. read</span>
+    </header>
+
+    <section>
+        <p>Alright, you can read the article first and shoot me later for a title like that, and what will inevitably become a series of Zig-based puns.</p>
+<p>Zig, for the unaware, is a fancy language that looks to be to C what Rust is to C++. Honestly, I recommend you read the summary on the main page<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> to find out more yourself, as the best I can do is to just parrot what has already been written. However, you can see it as a valid <em>alternative</em> to C and Zig itself has claimed that it wants to be a better version of C than C itself. An ambitious challenge, for sure. To that end, Zig itself ships its own C compiler.</p>
+<p>I’ve been interested in giving Zig a spin for quite a while, and once my Raspberry Pi Zero W<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> and OLED display<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> arrived in the post, I decided that this would be my best opportunity to try it out. I’m not really going to cover the process of wiring up the hardware, suffice to say that once you’ve got your Pi Zero you’ll need to be able to SSH into it, and that you’ll need a [solderless] GPIO header<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a> to plug the OLED display into. I recommend the Zero <strong>W</strong> because the W means ‘WiFi’, which means that if you connect it to your network you can SSH in without faffing around with USB cables and what not. It’s not a requirement, though.</p>
+<p>With that out of the way, let’s see if we can write something in Zig to power this little display. It’s going to be a simple program that simply fills the entire screen by turning the pixels from black (off) to white (on). As an extra challenge, we will do this without pulling in dependencies like WiringPi<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>, or relying on existing drivers, as lovely as they are.</p>
+<p>Instead, we will be directly using the i<sup>2</sup>c dev interface<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>. If you’re using Debian and/or Ubuntu on your Pi and your own machine, you can grab these libraries with a simple <code>sudo apt install i2c-dev</code>. You will need to enable i<sup>2</sup>c on your Pi separately though, through <code>sudo raspi-config</code><a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>.</p>
+<p>Ready to… get Ziggy with it? Oh, I bet you are. 😋 If you want to skip to the end and just grab the code, though, you can find this all on GitHub<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a>. I called it Stardust, like <em>Zig</em>gy Stardust. Get it?</p>
+<p>🥁</p>
+<hr />
+<h2 id="hello-pi.">Hello, Pi.</h2>
+<p>The first and most complicated part of any low-level project is the bit where you try and establish a build system of some sorts. We’re going to forget about that completely for now and apply some elbow-grease to the situation.</p>
+<p>The next step is to define a <code>main</code> function that grabs a file descriptor (or handle) corresponding to our OLED display. According to the aforementioned dev interface docs</p>
+<pre class="zig"><code>const std = @import(&quot;std&quot;);
+
+const c = @cImport({
+  @cInclude(&quot;linux/i2c.h&quot;);
+  @cInclude(&quot;linux/i2c-dev.h&quot;);
+  @cInclude(&quot;sys/ioctl.h&quot;);
+});
+
+const i2c_device = &quot;/dev/i2c-1&quot;; // this is assumed correct on a Pi Zero, but may be i2c-0 on an older Pi.
+const i2c_addr: c_int = 0x3c; // this is typed as a C-style int for ABI compatibility with C
+
+pub fn main() !void {
+  const stdout = std.io.getStdOut().outStream();
+
+  const fd = try fs.openFileAbsolute(i2c_device, fs.File.OpenFlags{ .write = true, .read = true });
+  defer fd.close();
+
+  if (c.ioctl(fd.handle, c.I2C_SLAVE, i2c_addr) &lt; 0)) {
+    try stdout.print(&quot;ioctl failed, errno: {}\n&quot;, c.errno);
+  }
+
+  stdout.print(&quot;Init successful.\n&quot;, .{});
+}</code></pre>
+<p>You might have noticed something odd: we’re not really writing much Zig here, it’s practically 95% interop with C. The beauty of Zig is that this interop is so simple and intuitive that it’s the <em>easiest</em> way to get started if you’re going to be linking against existing C libraries. Get the software working first, abstract it later, as they say, and you might already start to get an idea of what we could convert into idiomatic Zig libraries in future.</p>
+<p>The actual Zig code you see though, is quite different to the C stuff. That <code>defer fd.close()</code>, for example, <em>ensures</em> that the file descriptor we opened up will be closed when we’re done. If we don’t do that, then it’ll stay open and there’ll be a leak.</p>
+<p>There’s also the <code>try</code> macro, used in combination with the <code>!void</code> return type, which will be super familiar if you’ve written some Rust and have dealt with option types. It’s short hand for executing the code and catching/dealing with the error, with <code>!void</code> being another shorthand for <code>anyerror!void</code>, namely: this function returns either nothing, or an error if there is one.</p>
+<p>WHat we’ve actually done, however, is open the device file <code>/dev/i2c-1</code>, and then used the <code>ioctl</code> library to specify which device in particular we want to talk to. You can find out this value by running <code>i2cdevice -y 1</code>, like so:</p>
+<pre><code>pi@raspberrypi:~ $ i2cdetect -y 1
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- 3c -- -- --
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+70: -- -- -- -- -- -- -- --</code></pre>
+<aside>
+In my case, the device can be accessed at address <code>0x3C</code>, which is how I defined <code>i2c_addr</code> above.
+</aside>
+<p>We’re at a good point now to try and compile this thing and then run it on the Pi. If we get the message ‘Init successful.’ then we’re golden.</p>
+<hr />
+<h2 id="build-and-push">Build and Push</h2>
+<p>Zig comes with a nice little build system out of the box, but we’re not going to use it right now because it’s a work in progress. I’ll leave that as an exercise to you, the reader, and I urge you to contribute any documentation you come up with to Zig. Instead, we’ll use the CLI which is just as powerful and, gracefully, a bit more discoverable for our purposes.</p>
+<p>Are you writing this code on the Pi itself? Probably not, I imagine, and nor do you need to.</p>
+<blockquote>
+<p>Cross-compiling is a first-class use case</p>
+<p>Andrew Kelley, Creator of Zig</p>
+</blockquote>
+<p>Let’s build a binary, then. Save your code into a file, say, <code>stardust.zig</code> and then proceed.</p>
+<pre class="console"><code>zig build-exe stardust.zig  -target arm-linux-musleabihf -mcpu arm1176jzf_s -O ReleaseSafe -lc</code></pre>
+<p>To unpack that a little, the <code>target</code> is a triplet stating that we want to build this using the musl<a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a> libc ABI, on a 32bit ARM architecture. <code>mcpu</code> goes along with that to make sure the resulting binary will work on our Pi Zero. I grabbed these values from an issue on Zig’s github repo<a href="#fn10" class="footnote-ref" id="fnref10" role="doc-noteref"><sup>10</sup></a>, so credit goes to the author of that issue for unintentionally guiding me forward.</p>
+<p>Passing the optimiser flag (<code>-O</code>) isn’t strictly necessary, so you can omit this if you require a debug build and stack traces with errors.</p>
+<p><code>-lc</code> basically says that this binary needs to be linked against libc.</p>
+<p>Once the build finishes, you should find a shiny new executable called <code>stardust</code> in the same directory as your code. You can get it onto your Pi with <code>scp</code>, like so:</p>
+<pre class="console"><code>scp stardust pi@raspberrypi:~/stardust</code></pre>
+<aside>
+You will need to change <code>pi@raspberrypi</code> to whatever else you’ve configured if you’ve changed the defaults.
+</aside>
+<p>SSH into your Pi after that, and try and run it! Does it return successfully? I hope so!</p>
+<p>Let’s move on and make this kitten purr. Meow 🐈.</p>
+<hr />
+<h2 id="getting-this-show-on-the-road">Getting this show on the road</h2>
+<p>In true <em>draw the rest of the fucking owl</em> fashion<a href="#fn11" class="footnote-ref" id="fnref11" role="doc-noteref"><sup>11</sup></a>, what follows is a bit of a code-dump since the primary method of communicating with your OLED display is to, literally, write a few bytes to a file. The registers available and what can be written to them are often described in a meticulously detailed datasheet<a href="#fn12" class="footnote-ref" id="fnref12" role="doc-noteref"><sup>12</sup></a>, but they’re not exactly light reading and we can save a bit of time by grabbing the info from elsewhere. A lot of the constants that follow are gracefully derived from those listed in a certain <code>owenosborn</code>’s wiringPi-based driver.<a href="#fn13" class="footnote-ref" id="fnref13" role="doc-noteref"><sup>13</sup></a>. Credit where credit’s due, eh.</p>
+<pre class="zig"><code>const SET_CONTRAST = 0x81;
+const SET_DISPLAY_ALL_ON_RESUME = 0xA4;
+const SET_DISPLAY_ALL_ON = 0xA5;
+const SET_NORMAL_DISPLAY = 0xA6;
+const SET_INVERT_DISPLAY = 0xA7;
+const SET_DISPLAY_OFF = 0xAE;
+const SET_DISPLAY_ON = 0xAF;
+const SET_DISPLAY_OFFSET = 0xD3;
+const SET_COLUMN_ADDR = 0x21;
+const SET_PAGE_ADDR = 0x22;
+const SET_COM_PINS = 0xDA;
+const SET_VCOM_DETECT = 0xDB;
+const SET_DISPLAY_CLOCK_FREQ = 0xD5;
+const SET_PRECHARGE = 0xD9;
+const SET_MULTIPLEX_RATIO = 0xA8;
+const SET_LOW_COLUMN = 0x00;
+const SET_HIGH_COLUMN = 0x10;
+const SET_START_LINE = 0x40;
+const SET_START_PAGE = 0xB0;
+const SET_MEMORY_MODE = 0x20;
+const SET_COM_SCAN_INC = 0xC0;
+const SET_COM_SCAN_DEC = 0xC8;
+const SET_SEG_REMAP = 0xA0;
+const SET_CHARGE_PUMP = 0x8D;</code></pre>
+<p>The registers available to an i<sup>2</sup>c compatible device will depend on the device itself, so it’s not really safe to copy and paste these without knowing exactly what you’re dealing with. This is driver level code so it’s not like you’ll get some fancy validation error if you write the wrong bytes, you’ll more likely fuck it up and burn down your house<a href="#fn14" class="footnote-ref" id="fnref14" role="doc-noteref"><sup>14</sup></a>.</p>
+<p>Next we’ll want to init the display and get it into a clean state, with the cursor pointing at the first pixel.</p>
+<pre class="zig"><code>fn init_display(fd: fs.File) !void {
+    const cmds = [_]u8{
+        SET_MULTIPLEX_RATIO, 0x3F,                   0x00,
+        SET_START_LINE,      SET_SEG_REMAP,          SET_COM_SCAN_DEC,
+        SET_COM_PINS,        0x32,                   SET_DISPLAY_ALL_ON_RESUME,
+        SET_NORMAL_DISPLAY,  SET_DISPLAY_CLOCK_FREQ, 0x80,
+        SET_CHARGE_PUMP,     0x14,                   SET_MEMORY_MODE,
+        0x20,
+    };
+
+    inline for (cmds) |cmd| {
+        _ = try fd.write(&amp;[2]u8{ 0x00, cmd });
+    }
+}
+
+fn display_off(fd: fs.File) !void {
+    _ = try fd.write(&amp;[2]u8{ 0x00, SET_DISPLAY_OFF });
+}
+
+fn display_on(fd: fs.File) !void {
+    _ = try fd.write(&amp;[2]u8{ 0x00, SET_DISPLAY_ON });
+}
+
+fn reset_cursor(fd: fs.File) !void {
+    const cmds = [_]u8{
+        SET_COLUMN_ADDR,
+        0x00,
+        0x7F,
+        SET_PAGE_ADDR,
+        0x00,
+        0x07,
+    };
+
+    inline for (cmds) |cmd| {
+        _ = try fd.write(&amp;[2]u8{ 0x00, cmd });
+    }
+}</code></pre>
+<p>Wow, actual Zig code! The formatting may look a little odd because that’s what <code>zig fmt</code> decides is appropriate.</p>
+<p><code>init_display</code> is quite a complex beast that issues a whole series of commands that sets up the display for further use. A more detailed explanation of that will be in another post, for the sake of brevity, but in essence it was adapted from AdaFruit’s CircuitPi driver, written in Python<a href="#fn15" class="footnote-ref" id="fnref15" role="doc-noteref"><sup>15</sup></a>.</p>
+<p>The recurring theme in all of these new functions is that the entire basis of their existence is to create an array of two bytes, and then write them to file descriptor we opened right at the start. The data structure looks something like this:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a>buf[<span class="dv">0</span>] = <span class="bn">0x00</span>; <span class="co">// the register to be written to</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>buf[<span class="dv">1</span>] = <span class="er">0x</span>??; <span class="co">// the value to assign to that register</span></span></code></pre></div>
+<p>The file opened in <code>main</code> isn’t a traditional file as you know it, but it points to all of the devices connected to your GPIO header on the Pi. Therefore, if you know enough about the hardware at a low enough level, you can control all of them by writing the right bytes to the right register, at the right address.</p>
+<p>The rest of the code, e.g. <code>reset_cursor</code>, resets the state of the display in such a way that you can write a pixel and the cursor will advance, linearly, to the next one.</p>
+<pre class="zig"><code>fn fill(fd: fs.File) !void {
+    var i: usize = 0;
+
+    while (i &lt; 1024) {
+        _ = try fd.write(&amp;[2]u8{ 0x40, 0xFF });
+        i += 1;
+    }
+}</code></pre>
+<p>This <code>fill</code> function will (rather quickly) turn the display solid white, updating each pixel one at a time. Before we continue though, let’s go through some more Zig specifics; namely, <code>inline</code>.</p>
+<hr />
+<h2 id="a-zig-a-zig-aaaahhhh">A zig-a-Zig aaaahhhh…</h2>
+<aside>
+Reach out to me at <a href="mailto:pleasemakeitstop@mrlee.dev">pleasemakeitstop@mrlee.dev</a> if this is too much for you.
+</aside>
+<p>Zig has some nice language features intended to replace and improve upon C/C++ preprocessor macros. The <code>inline</code> keyword is one such thing, and when applied to a <code>for</code> or <code>while</code> loop it’ll unroll it at compile time. A simple optimisation but a useful one. We don’t use it, but you also have <code>comptime</code>, which is powerful enough to be able to implement generics, if you so desire. We’re not going to go into that here though, and you can read more about it from a certain Loris Cro<a href="#fn16" class="footnote-ref" id="fnref16" role="doc-noteref"><sup>16</sup></a>.</p>
+<hr />
+<p>This post is getting pretty long-winded, and all I wanted to do was show how to set some pixels on a tiny display. Let’s wrap this up then, since we’re almost ready to recompile. Just one finishing touch, which is to call the functions we defined. Update <code>main</code> to look like this:</p>
+<pre class="zig"><code>pub fn main() !void {
+    const stdout = std.io.getStdOut().outStream();
+    const fd = try fs.openFileAbsolute(i2c_device, fs.File.OpenFlags{ .write = true, .read = true });
+    defer fd.close();
+
+    if (c.ioctl(fd.handle, c.I2C_SLAVE, i2c_addr) &lt; 0) {
+        try stdout.print(&quot;ioctl failed, errno: {}\n&quot;, c.errno);
+        return;
+    }
+
+    try stdout.print(&quot;init\n&quot;, .{});
+    try display_off(fd);
+    try init_display(fd);
+    try display_on(fd);
+    try reset_cursor(fd);
+
+    try stdout.print(&quot;turn on\n&quot;, .{});
+    try display_on(fd);
+
+    try stdout.print(&quot;fill\n&quot;, .{});
+    try fill(fd);
+}</code></pre>
+<p>Once you’re done, rebuild the binary and <code>scp</code> it over, like you did the first time. SSH into your Pi and run it again (i.e <code>./stardust</code>), and see your display light up! 🥳</p>
+<hr />
+<p>Hopefully that worked, but if it didn’t, get in touch with your feedback at <a href="mailto:wtf@mrlee.dev">wtf@mrlee.dev</a> and help contribute to this post being a better, more informative read. After all, <em>works on my machine!</em> can only go so far.</p>
+<pre><code></code></pre>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p><a href="https://ziglang.org" class="uri">https://ziglang.org</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p><a href="https://thepihut.com/products/raspberry-pi-zero-w" class="uri">https://thepihut.com/products/raspberry-pi-zero-w</a><a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p><a href="https://thepihut.com/products/adafruit-pioled-128x32-monochrome-oled-add-on-for-raspberry-pi-ada3527" class="uri">https://thepihut.com/products/adafruit-pioled-128x32-monochrome-oled-add-on-for-raspberry-pi-ada3527</a><a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4" role="doc-endnote"><p><a href="https://thepihut.com/products/gpio-hammer-header-solderless" class="uri">https://thepihut.com/products/gpio-hammer-header-solderless</a><a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5" role="doc-endnote"><p><a href="http://wiringpi.com/" class="uri">http://wiringpi.com/</a><a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6" role="doc-endnote"><p><a href="https://www.kernel.org/doc/Documentation/i2c/dev-interface" class="uri">https://www.kernel.org/doc/Documentation/i2c/dev-interface</a><a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn7" role="doc-endnote"><p><a href="https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c" class="uri">https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c</a><a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn8" role="doc-endnote"><p><a href="https://github.com/mrleedev/stardust" class="uri">https://github.com/mrleedev/stardust</a><a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn9" role="doc-endnote"><p><a href="https://musl.libc.org/" class="uri">https://musl.libc.org/</a><a href="#fnref9" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn10" role="doc-endnote"><p><a href="https://github.com/ziglang/zig/issues/4875" class="uri">https://github.com/ziglang/zig/issues/4875</a><a href="#fnref10" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn11" role="doc-endnote"><p><a href="https://knowyourmeme.com/memes/how-to-draw-an-owl" class="uri">https://knowyourmeme.com/memes/how-to-draw-an-owl</a><a href="#fnref11" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn12" role="doc-endnote"><p><a href="https://cdn-shop.adafruit.com/datasheets/SSD1306.pdf" class="uri">https://cdn-shop.adafruit.com/datasheets/SSD1306.pdf</a><a href="#fnref12" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn13" role="doc-endnote"><p><a href="https://github.com/owenosborn/SSD1306-OLED-WiringPi/blob/master/ssd1306.h" class="uri">https://github.com/owenosborn/SSD1306-OLED-WiringPi/blob/master/ssd1306.h</a><a href="#fnref13" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn14" role="doc-endnote"><p>Possibly exaggerated for effect. Possibly.<a href="#fnref14" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn15" role="doc-endnote"><p><a href="https://github.com/adafruit/Adafruit_CircuitPython_SSD1306/blob/master/adafruit_ssd1306.py" class="uri">https://github.com/adafruit/Adafruit_CircuitPython_SSD1306/blob/master/adafruit_ssd1306.py</a><a href="#fnref15" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn16" role="doc-endnote"><p><a href="https://kristoff.it/blog/what-is-zig-comptime/" class="uri">https://kristoff.it/blog/what-is-zig-comptime/</a><a href="#fnref16" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+    </section>
+</article>]]></description>
+    <pubDate>Tue, 05 Jan 2021 00:00:00 UT</pubDate>
+    <guid>https://www.kamelasa.dev/programming/gettin-ziggy-with-it-pi-zero</guid>
+    <dc:creator>Lee Meichin</dc:creator>
+</item>
+<item>
     <title>Can you crack the code?</title>
     <link>https://www.kamelasa.dev/programming/can-you-crack-the-code</link>
     <description><![CDATA[<article>
@@ -623,39 +848,6 @@ If you’re curious about the first <code>use_module</code> statement, beyond kn
 </article>]]></description>
     <pubDate>Tue, 07 Jul 2020 00:00:00 UT</pubDate>
     <guid>https://www.kamelasa.dev/personal/isolation-aloneness-and-loneliness</guid>
-    <dc:creator>Lee Meichin</dc:creator>
-</item>
-<item>
-    <title>On Sharing Vulnerability</title>
-    <link>https://www.kamelasa.dev/personal/on-sharing-vulnerability</link>
-    <description><![CDATA[<article>
-    <header class="header inverse-video">
-        <h2 class="title">On Sharing Vulnerability</h2>
-        <span class="ert">~3 min. read</span>
-    </header>
-
-    <section>
-        <p>One of the most wonderful things I’ve seen on the internet in recent years is our growing willingness to be vulnerable, together. I have to admit that this wasn’t really a ‘thing’ for me until I’d read Daring Greatly by Brene Brown<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, as well as Rising Strong<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. As far as self help books go, I don’t think I would actually categorise them as such.</p>
-<p>Even LinkedIn these days is full of posts of people sharing their failures, admitting mistakes, dropping their egos, and being authentic with each other in favour of presenting a flawless persona. It’s a beautiful thing, to allow yourself to be yourself, your very human self, without the pressure of having to appear flawless.</p>
-<p>For me, this extends a bit further although I appreciate that it’s something that has to be taken on balance, because there’s a difference between making mistakes and doing the same thing deliberately or with purpose. For example, when I record a video for Youtube, I’ll generally go for one take, without any editing beyond making sure the sound of my voice isn’t too quiet, or doesn’t blow your eardrums out. All of the vocal mistakes and mis-spoken words will remain, as will the pauses for thought.</p>
-<p>As a software engineer, this happens a lot when writing code and architecting systems too. I suppose I’m a mix between a try-hard and a people-pleaser, so the bar I set for myself is miles higher than the expectations anyone else have, if they have any at all. In that situation, I’ve raised the stakes for myself so fucking high that even the slightest error can be heartbreaking. Thankfully I’ve brought that under control over the years, as I’ve grown older and wiser, but I still notice it in myself. It’s funny though, because through my training as a coach, and through my experience of co-founding and coaching at Rails Girls London, I am a lot more effective at guiding others through similar challenges than I am with applying them to myself.</p>
-<p>As you might have guessed, it’s a lot easier to take care of others instead of taking care of yourself and, at least in the West, we’ve ended up with this bizarre, paradoxical mix of individualism and selflessness. You know, you own your success but others are responsible for your failures. It’s pretty toxic, but I digress.</p>
-<p>I’m not sure what point I’m trying to make, except that I appreciate the injection of humanity into our disembodied communications over the internet. Being vulnerable isn’t just sharing your childhood trauma or doing a bit of emotional dumping, as valid as those are in some situations, but also drawing back the curtains in front of your heart and releasing some of that darkness into the light that others cast.</p>
-<p>Ok, that’s a weird metaphor I know, I’m not even sure I like it :D but you know, it was the first thing that came into my mind and my experiences over the past five or six years have led me to confront my own shadow face to face. Light and dark kind of fits, so long as you don’t consider them good and bad. They are neither, just different.</p>
-<p>To wrap this up, I recognise that a lot of people personally reach out to me and share their appreciation for me sharing my own vulnerability. For me, it’s almost normal, although it’s taken a while to figure out how to express it in a healthier way, while continuing to empower myself as opposed to retreating into those frankly shitty feelings and memories. At one time, I found it hard as well, but I had amazing support all the way along and I was never alone with it.</p>
-<p>So, considering that we see ourselves becoming more distant as a result of the COVID situation, I encourage anyone who reads this to attempt a bold move into the uncomfortable and see how they might introduce their humanity into their internet persona. Share and share alike.</p>
-<p>❤</p>
-<section class="footnotes" role="doc-endnotes">
-<hr />
-<ol>
-<li id="fn1" role="doc-endnote"><p><a href="https://www.amazon.co.uk/Daring-Greatly-Courage-Vulnerable-Transforms/dp/1592408419" class="uri">https://www.amazon.co.uk/Daring-Greatly-Courage-Vulnerable-Transforms/dp/1592408419</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2" role="doc-endnote"><p><a href="https://www.amazon.co.uk/Rising-Strong-Bren%C3%A9-Brown/dp/0091955033" class="uri">https://www.amazon.co.uk/Rising-Strong-Bren%C3%A9-Brown/dp/0091955033</a><a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-</ol>
-</section>
-    </section>
-</article>]]></description>
-    <pubDate>Fri, 03 Jul 2020 00:00:00 UT</pubDate>
-    <guid>https://www.kamelasa.dev/personal/on-sharing-vulnerability</guid>
     <dc:creator>Lee Meichin</dc:creator>
 </item>
 
