@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>kamelåså - Using Ruby's C API inside Ruby</title>
+
+    <link rel="alternate" type="application/rss+xml" href="../../rss.xml" />
+    <link rel="alternate" type="application/atom+xml" href="../../atom.xml" />
+    <link rel="stylesheet" href="../../css/terminal.min.css" />
+    <link rel="stylesheet" href="../../css/main.css" />
+    <link rel="stylesheet" href="../../css/syntax.css" />
+
+    <link rel="preload" as="font" href="../../fonts/cascadia.woff2" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" as="font" href="../../fonts/cascadia.woff" type="font/woff" crossorigin="anonymous" />
+
+    <script async defer data-domain="kamelasa.dev" src="https://plausible.io/js/plausible.js"></script>
+  </head>
+
+  <body class="terminal">
+    <div class="container">
+      <div class="terminal-nav">
+        <header class="terminal-logo">
+          <div class="logo terminal-prompt">
+            <a class="no-style" href="../../">kamelåså</a>
+            <span>special topics in calamity something or other</span>
+          </div>
+        </header>
+        <nav class="terminal-menu">
+          <ul vocab="https://schema.org/" typeof="BreadcrumbList">
+            <li>
+              <a href="https://github.com/mrleedev/" class="github-link">
+                <svg class="github-logo" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path>
+                </svg>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <main class="container"><article>
+    <header class="header inverse-video">
+        <h2 class="title">Using Ruby's C API inside Ruby</h2>
+        <span class="ert">~4 min. read</span>
+    </header>
+
+    <section>
+        <p>A thought occurred to me in my mask-wearing, lockdown-addled brain last night: why the hell did I choose <em>now</em> to stop drinking? It’s for my own good, I told myself, and so my thoughts shifted further into the absurd with nary a mind-altering substance in sight to stop them.</p>
+<p>One of those thoughts stuck out in particular, because of how ridiculous it sounded: could you optimise your Ruby code by using FFI with Ruby’s C bindings? I’m not talking about making a native extension in pure C, I’m talking about making Ruby talk to itself through a foreign function interface using the ffi gem<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p>
+<p>Let’s apply some method to this madness and set up some bindings, otherwise we’re dead in the water. Let’s be descriptive and call our FFI module <code>LibRuby</code>. No naming conflicts at all there, <em>no sirree</em>!</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a>require <span class="st">'ffi'</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="kw">module</span> <span class="dt">LibRuby</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>  extend <span class="dt">FFI</span>::<span class="dt">Library</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>  ffi_lib <span class="st">'ruby'</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>  typedef <span class="st">:pointer</span>, <span class="st">:value</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a>  typedef <span class="st">:pointer</span>, <span class="st">:id</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a>  attach_variable <span class="st">:rb_mKernel</span>, <span class="st">:value</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a>  attach_function <span class="st">:rb_const_get</span>, [<span class="st">:value</span>, <span class="st">:id</span>], <span class="st">:value</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a>  attach_function <span class="st">:rb_intern</span>, [<span class="st">:string</span>], <span class="st">:id</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a>  attach_function <span class="st">:rb_funcall</span>, [<span class="st">:value</span>, <span class="st">:id</span>, <span class="st">:int</span>, <span class="st">:varargs</span>], <span class="st">:value</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a>  attach_function <span class="st">:rb_str_new_cstr</span>, [<span class="st">:string</span>], <span class="st">:value</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a><span class="kw">end</span></span></code></pre></div>
+<p>If you look at the code in this module, you’ll notice that I used <code>attach_variable</code> to get access to the Kernel module, and <code>attach_function</code> for the method calls. The <code>:id</code> and <code>:value</code> types are just aliases for <code>:pointer</code>, because <code>VALUE</code> and <code>ID</code> in the C API are themselves pointers. It’s for the sake of documentation, so it’s clearer what order you pass arguments in.</p>
+<p>Ruby’s built in modules and classes are already defined globally with a naming scheme. In this case, <code>Kernel</code> is a variable called <code>rb_mKernel</code>, where <code>rb</code> is a prefix that every C function has in common (so you know it’s for Ruby as C doesn’t have namespaces), and the letter <code>m</code> means <code>module</code>. If it was <code>c</code> instead it would mean <code>class</code>.</p>
+<p>Anyway this boilerplate should give us enough to do a hello world using Ruby’s C API but at runtime, in Ruby, so it’s time to fire up <code>irb</code>.</p>
+<aside>
+It should go without saying that at this point, you’re not just playing with fire, you’re inviting it to burn down your house. Be careful lest the <code>segfault</code>s creep up on you.
+</aside>
+<p>Let’s take it from the top and talk through this ungodly incantation. Go ahead and copy that little module into your console! If it fails, make sure you’ve got the <code>ffi</code> gem installed<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>.</p>
+<p>Once you’re done, you can save some keystrokes by importing that module.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a>include <span class="dt">LibRuby</span></span></code></pre></div>
+<p>In order to call <code>puts</code> in Ruby through the C API, we’ll need to get a reference to the module it’s defined in (<code>Kernel</code>), and also get the method name as a symbol (like you might normally do with <code>.to_sym</code>).</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>kernel = <span class="dt">LibRuby</span>.rb_mKernel</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>puts_method = rb_intern(<span class="st">'puts'</span>)</span></code></pre></div>
+<p>Oh, before we continue, better disable the garbage collector. This is a simple way to stop the oscillating turbine from splattering unpleasant substances around the room. (More on that later, but see if you can guess why.)</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="dt">GC</span>.disable</span></code></pre></div>
+<p>We can’t just pass in a normal string to <code>puts</code> without things going 💥, as everything is an object in Ruby and therefore we need to get a pointer to a <code>String</code> instance (or in internal Ruby lingo, one of those <code>VALUE</code>s).</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>str = rb_str_new_cstr(<span class="st">'welcome, mortals'</span>)</span></code></pre></div>
+<p>Now we have all of the ingredients to make the actual call, which syntactically and aesthetically blows idiomatic Ruby out of the water. Delicately paste this into your console and you should see the string printed out. You’ll also get a return value like <code>#&lt;FFI::Pointer address=0x0000000000000008&gt;</code>, which will refer to <code>Qnil</code>. <code>Qnil</code> is a pointer to Ruby’s <code>nil</code> object.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a>rb_funcall(kernel, puts_method, <span class="dv">1</span>, <span class="st">:value</span>, str)</span></code></pre></div>
+<p>Run it again a few times, and with different strings. If you’re feeling experimental, attach more functions in <code>LibRuby</code> and see what else you can print out! Ruby’s extension documentation should be a good place to start<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>.</p>
+<h3 id="so-why-disable-the-gc">So, why disable the GC?</h3>
+<p>For every step in this post up to creating a <code>String</code> object, we’ve been using function bindings and global variables. Global variables and constants won’t be garbage collected, because the global scope will always maintain a reference to them; besides which, it would be quite bad if your classes and modules suddenly disappeared after a GC pass.</p>
+<p>The string object is different, however, as on the C side of things Ruby is taking a pointer to a C string (a <code>const char *</code>), allocating memory, and giving back a pointer to the new object. Eventually the GC will run and free up the memory at the pointer’s address, and the string will no longer exist. You’ll probably find something else at that address instead, or just garbage.</p>
+<p>Disabling the GC in this instance is a <strong>shitty hack</strong> because it’s a direct admission that the code is <em>not memory safe</em>. Hopefully you didn’t need me to tell you that, though, and the quality of the code in this post was self-evident.</p>
+<p>How would you fix it? Well, now we’ve found out that we <em>can</em> write Ruby with itself we’ll explore that next time. And there’ll be benchmarks, too.</p>
+<p>Until then, I’ll see you further into the abyss.</p>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p><a href="https://github.com/ffi/ffi" class="uri">https://github.com/ffi/ffi</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p><code>gem install ffi -- --enable-system-libffi</code><a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p><a href="https://ruby-doc.org/core-2.7.0/doc/extension_rdoc.html" class="uri">https://ruby-doc.org/core-2.7.0/doc/extension_rdoc.html</a><a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+    </section>
+</article></main>
+
+    <footer class="container">
+      <header>
+        <p class="modeline inverse-video">
+          -UUU:----F1&nbsp;&nbsp;Using Ruby's C API inside Ruby&nbsp;&nbsp;&nbsp;&nbsp;Bot
+          L100%&nbsp;&nbsp;Git:main&nbsp;&nbsp;(HTML+) ----------
+        </p>
+      </header>
+    </footer>
+  </body>
+</html>
