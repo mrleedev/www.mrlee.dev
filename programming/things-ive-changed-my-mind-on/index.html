@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>kamelåså - Things I've learned after 10 years in the industry</title>
+
+    <link rel="alternate" type="application/rss+xml" href="../../rss.xml" />
+    <link rel="alternate" type="application/atom+xml" href="../../atom.xml" />
+    <link rel="stylesheet" href="../../css/terminal.min.css" />
+    <link rel="stylesheet" href="../../css/main.css" />
+    <link rel="stylesheet" href="../../css/syntax.css" />
+
+    <link rel="preload" as="font" href="../../fonts/cascadia.woff2" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" as="font" href="../../fonts/cascadia.woff" type="font/woff" crossorigin="anonymous" />
+
+    <script async defer data-domain="kamelasa.dev" src="https://plausible.io/js/plausible.js"></script>
+  </head>
+
+  <body class="terminal">
+    <div class="container">
+      <div class="terminal-nav">
+        <header class="terminal-logo">
+          <div class="logo terminal-prompt">
+            <a class="no-style" href="../../">kamelåså</a>
+            <span>special topics in calamity something or other</span>
+          </div>
+        </header>
+        <nav class="terminal-menu">
+          <ul vocab="https://schema.org/" typeof="BreadcrumbList">
+            <li>
+              <a href="https://github.com/mrleedev/" class="github-link">
+                <svg class="github-logo" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path>
+                </svg>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <main class="container"><article>
+    <header class="header inverse-video">
+        <h2 class="title">Things I've learned after 10 years in the industry</h2>
+        <span class="ert">~3 min. read</span>
+    </header>
+
+    <section>
+        <p>Earlier today I read a blog post titled <em>Software development topics I’ve changed my mind on after 6 years in the industry</em><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> and it made me reflect on how my own thinking has (hopefully) evolved over my decade long career. I’m not going to discuss the content of the linked post, except to say that as much as I empathise with the author and have been an angry programmer myself, the overly aggressive tone that occasionally slips out isn’t really my cup of tea.</p>
+<p>A lot of things can happen in ten years, and if nothing else my 30-something year old self feels substantially less enlightened than his more youthful counterpart. I look forward to reading this again in future and seeing what I think about it then.</p>
+<p>This will probably come across as a bunch of hot takes that work better on Twitter, but that’s one dumpster fire I’d prefer not to climb into. So here we go, in no particular order…</p>
+<ul>
+<li><p>I feel happier in myself when I don’t pretend to have an answer to everything.</p>
+<p><em>Corrollary: Having an answer to everything (or being overconfident) is a hard habit to break.</em></p></li>
+<li><p>A boring tech stack is nice, but you have to allow some scope for innovation if you don’t want to stagnate.</p>
+<p><em>One idea is to set up an innovation budget<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>, but it’s not the only one.</em></p></li>
+<li><p>PHP is a legitimate–if not <em>superior</em>–option to start a new project with and it deserves another chance.</p>
+<p><em>The language has matured spectacularly since 7.1 onwards.</em></p></li>
+<li><p>It’s up to me as a software engineer to research ideas and proposals and judge them on merit, not anecdata.</p>
+<p><em>I used to find things like Domain Driven Design (DDD) silly and enterprisey, because I used a poor implementation of it to judge the process itself.</em></p></li>
+<li><p>The cloud is not a foregone conclusion.</p>
+<p><em>You can still get a lot more bang for your buck with a VPS, and you’ll learn something about systems administration too.</em></p></li>
+<li><p>QA is only a bottleneck when you treat the team as part of a deployment pipeline.</p>
+<p><em>So many issues can be fixed at the design phase, before a line of code is even written, if you involve your QA engineers.</em></p></li>
+<li><p>Not every people problem can be solved with technology.</p>
+<p><em>Automate everything away and you have no humanity left.</em></p></li>
+<li><p>My greatest learning moments came from maintenance programming and working with legacy code, rather than building new features.</p>
+<p><em>Debugging is a skill, fixing bugs is a skill, and the depth of your domain knowledge will be limited if you don’t know how to do it well.</em></p></li>
+<li><p>When talking about User Experience, your users aren’t just your paying customers, they’re your support team and your developers.</p>
+<p><em>Dedicating some resources to internal productivity can do wonders for your team, which eventually leads to increased user satisfaction.</em></p></li>
+<li><p>Technology isn’t invalidated by its age, it is strengthened by it.</p>
+<p><em>I occasionally hear people saying things like people don’t use Rails any more because it’s old and serverless or some shit is the hype. Don’t use hype as the foundation for your business, use stability.</em></p></li>
+<li><p>You can write much better code if you don’t micro-manage the structure of it; be judicious with your linters and formatters.</p>
+<p><em>Setting limits on things like function length or class length sounds ideal, but these kind of linters are ultimately shaping your code through blunt force and, possibly more often than not, making it worse by enforcing needless indirection.</em></p></li>
+<li><p>If it’s in a pull request (PR) it might already be too late to change course.</p>
+<p><em>The sort of feedback you can give in a pull request is not of the same quality you can get with a conversation held before committing code.</em></p></li>
+<li><p>It’s better when I’m not sentimental about the code I write or the ideas I present.</p>
+<p><em>Rejection isn’t always so easy to handle, but there’s always another time and a ‘no’ is still better than not being acknowledged at all. It’s a great opportunity for constructive feedback and learning.</em></p></li>
+</ul>
+<p>It feels a bit weird to write out a series of arbitrary maxims the way I just have, so I’ll aim to explore each one in more depth throughout this year. With that said, it was an interesting exercise if ultimately a rather shallow one. Watch this space for more details.</p>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p><a href="https://chriskiehl.com/article/thoughts-after-6-years" class="uri">https://chriskiehl.com/article/thoughts-after-6-years</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p><a href="https://mcfunley.com/choose-boring-technology" class="uri">https://mcfunley.com/choose-boring-technology</a><a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+    </section>
+</article></main>
+
+    <footer class="container">
+      <header>
+        <p class="modeline inverse-video">
+          -UUU:----F1&nbsp;&nbsp;Things I've learned after 10 years in the industry&nbsp;&nbsp;&nbsp;&nbsp;Bot
+          L100%&nbsp;&nbsp;Git:main&nbsp;&nbsp;(HTML+) ----------
+        </p>
+      </header>
+    </footer>
+  </body>
+</html>
